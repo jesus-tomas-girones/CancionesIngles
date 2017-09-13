@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#ffffff"
+    android:id="@+id/etiquetar_cancion">
+
+    <TextView
+        android:id="@+id/nombreEtiquetar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:text="@string/etiquetar_cancion"
+        android:layout_margin="20dp"
+        android:textSize="20dp"
+        android:textStyle="bold"
+        android:textColor="@color/colorAccent" />
+
+
+    <TextView
+        android:id="@+id/fraseOriginal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:textColor="@color/colorPrimaryDark"
+        android:textSize="20dp"
+        android:lines="2"
+        android:layout_margin="10dp"
+        android:layout_above="@+id/fraseTraducida"
+        android:textStyle="bold|italic"/>
+    <TextView
+        android:id="@+id/fraseTraducida"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="20dp"
+        android:layout_centerVertical="true"
+        android:gravity="center_horizontal"
+        android:lines="2"
+        android:layout_margin="10dp"
+        android:textStyle="bold|italic"
+        android:textColor="@color/colorAccent"/>
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:gravity="center"
+        android:layout_margin="10dp"
+        android:stretchColumns="*">
+
+        <TableRow>
+            <Button
+                android:id="@+id/buttonIni"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/tiempo_ini"
+                android:background="@xml/miboton"
+                android:onClick="ini"
+                style="@style/button_text" />
+            <ImageButton
+                android:id="@+id/buttonStart"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="start"
+                android:layout_marginLeft="2dp"
+                android:layout_marginRight="2dp"
+                android:background="#ffffff"
+                android:src="@drawable/myplay"
+                android:clickable="true"
+                android:contentDescription="start"
+                android:visibility="visible" />
+            <Button
+                android:id="@+id/buttonFin"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/tiempo_fin"
+                android:onClick="fin"
+                android:background="@xml/miboton"
+                style="@style/button_text" />
+        </TableRow>
+
+    </TableLayout>
+
+</RelativeLayout>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="tiposSubtitulos">
+        <item>@string/subtitulos_ambos</item>
+        <item>@string/subtitulos_original</item>
+        <item>@string/subtitulos_traducido</item>
+    </string-array>
+    <string-array name="tiposSubtitulosValores">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+</resources>

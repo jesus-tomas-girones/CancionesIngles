@@ -1,0 +1,46 @@
+<resources>
+    <string name="app_name">Canciones Inglés</string>
+    <string name="action_settings">Settings</string>
+    <string name="titulo">Título:</string>
+    <string name="titulo_hint">título de la canción</string>
+    <string name="autor">Autor:</string>
+    <string name="autor_hint">autor de la canción</string>
+    <string name="genero">Género:</string>
+    <string name="dificultad">Dificultad:</string>
+    <string name="nombreFichero">Nombre Fichero:</string>
+    <string name="nombreFichero_hint">nombre que identifica a todos los ficheros</string>
+    <string name="acerca_de">Acerca De ...</string>
+    <string name="texto_acercade">Esta aplicación ha sido desarrollada como Proyecto Final del Master Desarrollo de Aplicaciones Móviles.</string>
+    <string name="buscar">Buscar</string>
+    <string name="editar">Editar</string>
+    <string name="etiquetar">Etiquetar</string>
+    <string name="borrar">Borrar</string>
+    <string name="titulo_borrar">Borrado de Canción</string>
+    <string name="mensaje_borrar">¿Estas seguro que quieres eliminar esta canción?</string>
+    <string name="guardar">Guardar</string>
+    <string name="cancelar">Cancelar</string>
+    <string name="editar_cancion">Editar Canción</string>
+    <string name="nueva_cancion">Nueva Canción</string>
+    <string name="etiquetar_cancion">Etiquetar Canción</string>
+    <string name="nuevo">Nueva Canción</string>
+    <string name="titulo_nuevo">Insertar Canción</string>
+    <string name="mensaje_nuevo">Para insertar una nueva canción necesitas guardar cuatro ficheros en la carpeta -cancionesingles- de la SD. Todos los ficheros se deberán nombrar con el texto introducido en Nombre Fichero sin espacios. Importante los txt se componen con el nombre de fichero seguido de original.txt o traducido.txt (Ejemplo yesterday: yesterday.mp3, yesterday.jpg, yesterdayoriginal.txt, yesterdaytraducido.txt</string>
+    <string name="titulo_etiquetar">Etiquetado de Canción</string>
+    <string name="mensaje_etiquetar">Debes indicar el inicio y final de cada frase pulsando el botón correspondiente. Es imprescindible que indiques el final de la frase!!. El inicio es opcional, en caso de no pulsar Ini se recalculara a partir del final de la frase</string>
+    <string name="tiempo_ini">Ini</string>
+    <string name="tiempo_fin">Fin</string>
+    <string name="tiempo_start">Start</string>
+    <string name="tiempo_repetir">Repetir</string>
+    <string name="titulo_subtitulos">Subtitulos en Modo Normal</string>
+    <string name="descripcion_subtitulos">Selecciona los subtitulos del modo normal</string>
+    <string name="subtitulos_ambos">Ambos</string>
+    <string name="subtitulos_original">Original</string>
+    <string name="subtitulos_traducido">Traducido</string>
+    <string name="titulo_alerta_etiquetado">Canción No Etiquetada</string>
+    <string name="mensaje_alerta_etiquetado">Solo podrás reproducir el audio, para los subtitulos o los diferentes modos de reproducción es necesario etiquetar la canción.</string>
+    <string name="normal">Normal</string>
+    <string name="lectura">Lectura</string>
+    <string name="repetir">Repetir</string>
+    <string name="confirmar">Confirmar</string>
+
+</resources>

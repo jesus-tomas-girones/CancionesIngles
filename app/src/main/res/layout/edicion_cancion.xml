@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v4.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.sacedonmg.cancionesingles.MainActivity"
+    tools:showIn="@layout/activity_main"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+        <TextView
+            android:id="@+id/nombreVista"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:text="@string/editar_cancion"
+            android:layout_margin="20dp"
+            android:textSize="20dp"
+            android:textStyle="bold"
+            android:textColor="@color/colorAccent"/>
+
+
+        <TextView
+            android:id="@+id/t_titulo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/titulo"
+            android:layout_below="@id/nombreVista"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+        <EditText
+            android:id="@+id/titulo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/t_titulo"
+            android:hint="@string/titulo_hint"
+            android:layout_marginBottom="30dp">
+            <requestFocus/>
+        </EditText>
+        <TextView
+            android:id="@+id/t_autor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/titulo"
+            android:text="@string/autor"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+        <EditText
+            android:id="@+id/autor"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/t_autor"
+            android:hint="@string/autor_hint"
+            android:layout_marginBottom="30dp">
+        </EditText>
+        <TextView
+            android:id="@+id/t_genero"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/autor"
+            android:text="@string/genero"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:layout_marginBottom="30dp"/>
+        <Spinner
+            android:id="@+id/genero"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@id/t_genero"
+            android:layout_toRightOf="@id/t_genero"
+            android:layout_marginBottom="30dp"/>
+        <TextView
+            android:id="@+id/t_dificultad"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/t_genero"
+            android:text="@string/dificultad"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:layout_marginBottom="30dp"/>
+        <Spinner
+            android:id="@+id/dificultad"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@id/t_dificultad"
+            android:layout_toRightOf="@id/t_dificultad"
+            android:layout_marginBottom="30dp"/>
+        <TextView
+            android:id="@+id/t_nombreFichero"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/t_dificultad"
+            android:text="@string/nombreFichero"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+        <EditText
+            android:id="@+id/nombreFichero"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/t_nombreFichero"
+            android:hint="@string/nombreFichero_hint" >
+        </EditText>
+
+    </RelativeLayout>
+</android.support.v4.widget.NestedScrollView>

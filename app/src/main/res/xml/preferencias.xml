@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:key="preferencias_principal" >
+    <ListPreference
+        android:key="subtitulos"
+        android:title="@string/titulo_subtitulos"
+        android:summary="@string/descripcion_subtitulos"
+        android:entries = "@array/tiposSubtitulos"
+        android:entryValues="@array/tiposSubtitulosValores"
+        android:defaultValue="0"/>
+
+</PreferenceScreen>

@@ -1,0 +1,370 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
+<cancion>
+	<titulo>Hero Of War</titulo>
+	<autor>Risa Against</autor>
+	<genero>2</genero>
+	<dificultad>1</dificultad>
+	<etiquetado>true</etiquetado>
+	<letra>
+		<frase>
+			<tiempoIni>4521</tiempoIni>
+			<tiempoFin>11034</tiempoFin>
+			<fraseOriginal>He said "Son, have you seen the world?</fraseOriginal>
+			<fraseTraducida>Él dijo, "Hijo, ¿has visto el mundo? </fraseTraducida>
+		</frase>
+		<frase>
+			<tiempoIni>11105</tiempoIni>
+			<tiempoFin>17195</tiempoFin>
+			<fraseOriginal>Well, what would you say if I said that you could?</fraseOriginal>
+			<fraseTraducida>Bien, ¿qué dirías si te dijera que podrías? </fraseTraducida>
+		</frase>
+		<frase>
+			<tiempoIni>17355</tiempoIni>
+			<tiempoFin>23084</tiempoFin>
+			<fraseOriginal>Just carry this gun and you'll even get paid."</fraseOriginal>
+			<fraseTraducida>Solamente lleva esta arma, e incluso serás pagado." </fraseTraducida>
+		</frase>
+		<frase>
+			<tiempoIni>23494</tiempoIni>
+			<tiempoFin>27172</tiempoFin>
+			<fraseOriginal>I said "That sounds pretty good."</fraseOriginal>
+			<fraseTraducida>Dije, "Eso suena muy bien" </fraseTraducida>
+		</frase>
+		<frase>
+			<tiempoIni>30642</tiempoIni>
+			<tiempoFin>32993</tiempoFin>
+			<fraseOriginal>Black leather boots</fraseOriginal>
+			<fraseTraducida>Botas negras de cuero </fraseTraducida>
+		</frase>
+		<frase>
+			<tiempoIni>32957</tiempoIni>
+			<tiempoFin>36321</tiempoFin>
+			<fraseOriginal>Spit-shined so bright</fraseOriginal>
+			<fraseTraducida>Lustradas con saliva tan brillantes </fraseTraducida>
+		</frase>
+		<frase>
+			<tiempoIni>36412</tiempoIni>
+			<tiempoFin>42712</tiempoFin>
+			<fraseOriginal>They cut off my hair but it looked alright</fraseOriginal>
+			<fraseTraducida>Ellos cortaron mi pelo, pero se veía bien </fraseTraducida>
+		</frase>
+		<frase>
+			<tiempoIni>42583</tiempoIni><tiempoFin>44965</tiempoFin>
+			<fraseOriginal>We marched and we sang</fraseOriginal>
+			<fraseTraducida>Marchamos y cantamos </fraseTraducida>
+		</frase>
+		<frase>
+			<tiempoIni>45107</tiempoIni>
+			<tiempoFin>48144</tiempoFin>
+			<fraseOriginal>We all became friends</fraseOriginal>
+			<fraseTraducida>Nos hicimos amigos</fraseTraducida>
+		</frase>
+		<frase><tiempoIni>48427</tiempoIni>
+			<tiempoFin>51862</tiempoFin>
+			<fraseOriginal>As we learned how to fight</fraseOriginal>
+			<fraseTraducida>Mientras aprendimos como luchar</fraseTraducida>
+		</frase>
+		<frase>
+			<tiempoIni>55411</tiempoIni>
+			<tiempoFin>57669</tiempoFin>
+			<fraseOriginal>A hero of war</fraseOriginal>
+			<fraseTraducida>Un héroe de guerra </fraseTraducida>
+		</frase>
+		<frase>
+			<tiempoIni>58005</tiempoIni>
+			<tiempoFin>60724</tiempoFin>
+			<fraseOriginal>Yeah that's what I'll be</fraseOriginal>
+			<fraseTraducida>Sí, eso es lo que seré </fraseTraducida>
+		</frase>
+		<frase>
+			<tiempoIni>60748</tiempoIni>
+			<tiempoFin>63761</tiempoFin>
+			<fraseOriginal>And when I come home</fraseOriginal>
+			<fraseTraducida>Y cuando llegue a casa </fraseTraducida>
+		</frase>
+		<frase>
+			<tiempoIni>63966</tiempoIni>
+			<tiempoFin>66969</tiempoFin>
+			<fraseOriginal>They'll be damn proud of me</fraseOriginal>
+			<fraseTraducida>Ellos estarán orgullosos de mí </fraseTraducida>
+		</frase>
+		<frase>
+			<tiempoIni>66922</tiempoIni>
+			<tiempoFin>69878</tiempoFin>
+			<fraseOriginal>I'll carry this flag</fraseOriginal>
+			<fraseTraducida>Llevaré esta bandera </fraseTraducida>
+		</frase>
+		<frase>
+			<tiempoIni>69880</tiempoIni>
+			<tiempoFin>72683</tiempoFin>
+			<fraseOriginal>To the grave if I must</fraseOriginal>
+			<fraseTraducida>A la tumba si tengo que hacerlo </fraseTraducida>
+		</frase>
+		<frase>
+			<tiempoIni>73046</tiempoIni>
+			<tiempoFin>76092</tiempoFin>
+			<fraseOriginal>Because it's a flag that I love</fraseOriginal>
+			<fraseTraducida>Porque es una bandera que amo </fraseTraducida>
+		</frase>
+		<frase>
+			<tiempoIni>76128</tiempoIni>
+			<tiempoFin>76414</tiempoFin>
+			<fraseOriginal>And a flag that I trust</fraseOriginal>
+			<fraseTraducida>Y una bandera en la que confío </fraseTraducida>
+		</frase>
+		<frase>
+			<tiempoIni>79981</tiempoIni>
+			<tiempoFin>82592</tiempoFin>
+			<fraseOriginal>I kicked in the door</fraseOriginal>
+			<fraseTraducida>Di patadas en la puerta </fraseTraducida>
+		</frase>
+		<frase>
+			<tiempoIni>82617</tiempoIni>
+			<tiempoFin>85701</tiempoFin>
+			<fraseOriginal>I yelled my commands</fraseOriginal>
+			<fraseTraducida>Gritó mis órdenes </fraseTraducida>
+		</frase>
+		<frase>
+			<tiempoIni>85726</tiempoIni>
+			<tiempoFin>89201</tiempoFin>
+			<fraseOriginal>The children, they cried</fraseOriginal>
+			<fraseTraducida>Los niños, ellos lloraron</fraseTraducida>
+		</frase>
+		<frase>
+			<tiempoIni>89226</tiempoIni>
+			<tiempoFin>92622</tiempoFin>
+			<fraseOriginal>But I got my man</fraseOriginal>
+			<fraseTraducida>Pero tenía a mi hombre </fraseTraducida>
+		</frase>
+		<frase>
+			<tiempoIni>92647</tiempoIni>
+			<tiempoFin>94949</tiempoFin>
+			<fraseOriginal>We took him away</fraseOriginal>
+			<fraseTraducida>Lo sacamos </fraseTraducida>
+		</frase>
+		<frase>
+			<tiempoIni>94974</tiempoIni>
+			<tiempoFin>98357</tiempoFin>
+			<fraseOriginal>A bag over his face</fraseOriginal>
+			<fraseTraducida>Una bolsa en su cara</fraseTraducida>
+		</frase>
+		<frase>
+			<tiempoIni>98382</tiempoIni>
+			<tiempoFin>101568</tiempoFin>
+			<fraseOriginal>From his family and his friends</fraseOriginal>
+			<fraseTraducida>De su familia y sus amigos</fraseTraducida>
+		</frase>
+		<frase>
+			<tiempoIni>101593</tiempoIni>
+			<tiempoFin>107555</tiempoFin>
+			<fraseOriginal>They took off his clothes</fraseOriginal>
+			<fraseTraducida>Le quitaron la ropa</fraseTraducida>
+		</frase>
+		<frase>
+			<tiempoIni>107580</tiempoIni>
+			<tiempoFin>110884</tiempoFin>
+			<fraseOriginal>They pissed in his hands</fraseOriginal>
+			<fraseTraducida>Mearon en sus manos </fraseTraducida>
+		</frase>
+		<frase>
+			<tiempoIni>110909</tiempoIni>
+			<tiempoFin>113809</tiempoFin>
+			<fraseOriginal>I told them to stop</fraseOriginal>
+			<fraseTraducida>Les dije que pararan</fraseTraducida>
+		</frase>
+		<frase>
+			<tiempoIni>113834</tiempoIni>
+			<tiempoFin>117637</tiempoFin>
+			<fraseOriginal>But then I joined in</fraseOriginal>
+			<fraseTraducida>Pero entonces me uní </fraseTraducida>
+		</frase>
+		<frase>
+			<tiempoIni>117662</tiempoIni>
+			<tiempoFin>120142</tiempoFin>
+			<fraseOriginal>We beat him with guns</fraseOriginal>
+			<fraseTraducida>Le golpeamos con las armas</fraseTraducida>
+		</frase>
+		<frase>
+			<tiempoIni>120167</tiempoIni>
+			<tiempoFin>123697</tiempoFin>
+			<fraseOriginal>And batons not just once</fraseOriginal>
+			<fraseTraducida>Y con porras no sólo una vez</fraseTraducida>
+		</frase>
+		<frase>
+			<tiempoIni>123722</tiempoIni>
+			<tiempoFin>126929</tiempoFin>
+			<fraseOriginal>But again and again</fraseOriginal>
+			<fraseTraducida>Sino una y otra vez</fraseTraducida>
+		</frase>
+		<frase>
+			<tiempoIni>126954</tiempoIni>
+			<tiempoFin>132468</tiempoFin>
+			<fraseOriginal>A hero of war</fraseOriginal>
+			<fraseTraducida>Un héroe de guerra</fraseTraducida></frase>
+		<frase>
+			<tiempoIni>132493</tiempoIni>
+			<tiempoFin>135475</tiempoFin>
+			<fraseOriginal>Yeah that's what I'll be</fraseOriginal>
+			<fraseTraducida>Sí, eso es lo que seré</fraseTraducida></frase>
+		<frase>
+			<tiempoIni>135500</tiempoIni>
+			<tiempoFin>138742</tiempoFin>
+			<fraseOriginal>And when I come home</fraseOriginal>
+			<fraseTraducida>Y cuando llegue a casa</fraseTraducida></frase>
+		<frase>
+			<tiempoIni>138767</tiempoIni>
+			<tiempoFin>141821</tiempoFin>
+			<fraseOriginal>They'll be damn proud of me</fraseOriginal>
+			<fraseTraducida>Ellos estarán (jodidamente) orgullosos de mí</fraseTraducida>
+		</frase>
+		<frase>
+			<tiempoIni>141846</tiempoIni>
+			<tiempoFin>144896</tiempoFin>
+			<fraseOriginal>I'll carry this flag</fraseOriginal>
+			<fraseTraducida>Llevaré esta bandera</fraseTraducida>
+		</frase>
+		<frase>
+			<tiempoIni>144921</tiempoIni>
+			<tiempoFin>148134</tiempoFin>
+			<fraseOriginal>To the grave if I must</fraseOriginal>
+			<fraseTraducida>A la tumba si tengo que hacerlo </fraseTraducida>
+		</frase>
+		<frase>
+			<tiempoIni>148159</tiempoIni>
+			<tiempoFin>151226</tiempoFin>
+			<fraseOriginal>Because it's a flag that I love</fraseOriginal>
+			<fraseTraducida>Porque es una bandera que amo </fraseTraducida>
+		</frase>
+		<frase>
+			<tiempoIni>151251</tiempoIni>
+			<tiempoFin>157998</tiempoFin>
+			<fraseOriginal>And a flag that I trust</fraseOriginal>
+			<fraseTraducida>Y una bandera en la que confío </fraseTraducida>
+		</frase>
+		<frase>
+			<tiempoIni>162773</tiempoIni>
+			<tiempoFin>166980</tiempoFin>
+			<fraseOriginal>She walked through bullets and haze</fraseOriginal>
+			<fraseTraducida>Ella caminó entre las balas y el humo</fraseTraducida>
+		</frase>
+		<frase>
+			<tiempoIni>167005</tiempoIni>
+			<tiempoFin>170085</tiempoFin>
+			<fraseOriginal>I asked her to stop</fraseOriginal>
+			<fraseTraducida>Le pedí que se detuviera </fraseTraducida>
+		</frase>
+		<frase>
+			<tiempoIni>170110</tiempoIni>
+			<tiempoFin>173295</tiempoFin>
+			<fraseOriginal>I begged her to stay</fraseOriginal>
+			<fraseTraducida>Le rogué que se quedara </fraseTraducida>
+		</frase>
+		<frase>
+			<tiempoIni>173320</tiempoIni>
+			<tiempoFin>176054</tiempoFin>
+			<fraseOriginal>But she pressed on</fraseOriginal>
+			<fraseTraducida>Pero ella insistió</fraseTraducida>
+		</frase>
+		<frase>
+			<tiempoIni>176079</tiempoIni>
+			<tiempoFin>179263</tiempoFin>
+			<fraseOriginal>So I lifted my gun</fraseOriginal>
+			<fraseTraducida>Así que levanté mi arma </fraseTraducida>
+		</frase>
+		<frase>
+			<tiempoIni>179288</tiempoIni>
+			<tiempoFin>185246</tiempoFin>
+			<fraseOriginal>And I fired away</fraseOriginal>
+			<fraseTraducida>Y disparé</fraseTraducida>
+		</frase>
+		<frase>
+			<tiempoIni>185271</tiempoIni>
+			<tiempoFin>192044</tiempoFin>
+			<fraseOriginal>The shells jumped through the smoke</fraseOriginal>
+			<fraseTraducida>Los casquillos saltaban a través del humo </fraseTraducida>
+		</frase>
+		<frase>
+			<tiempoIni>192069</tiempoIni>
+			<tiempoFin>194782</tiempoFin>
+			<fraseOriginal>And into the sand</fraseOriginal>
+			<fraseTraducida>Y sobre la arena </fraseTraducida>
+		</frase>
+		<frase>
+			<tiempoIni>194807</tiempoIni>
+			<tiempoFin>198543</tiempoFin>
+			<fraseOriginal>That the blood now had soaked</fraseOriginal>
+			<fraseTraducida>Que la sangre ahora ha bañado </fraseTraducida>
+		</frase>
+		<frase>
+			<tiempoIni>198568</tiempoIni>
+			<tiempoFin>208549</tiempoFin>
+			<fraseOriginal>She collapsed with a flag in her hand</fraseOriginal>
+			<fraseTraducida>Ella se derrumbó con una bandera en su mano </fraseTraducida>
+		</frase>
+		<frase>
+			<tiempoIni>208574</tiempoIni>
+			<tiempoFin>210796</tiempoFin>
+			<fraseOriginal>A flag white as snow</fraseOriginal>
+			<fraseTraducida>Una bandera blanca como la nieve. </fraseTraducida>
+		</frase>
+		<frase>
+			<tiempoIni>210821</tiempoIni>
+			<tiempoFin>213677</tiempoFin>
+			<fraseOriginal>A hero of war</fraseOriginal>
+			<fraseTraducida>Un héroe de guerra </fraseTraducida>
+		</frase>
+		<frase>
+			<tiempoIni>213702</tiempoIni>
+			<tiempoFin>216748</tiempoFin>
+			<fraseOriginal>Is that what they see</fraseOriginal>
+			<fraseTraducida>Es todo lo que ellos ven </fraseTraducida>
+		</frase>
+		<frase>
+			<tiempoIni>216773</tiempoIni>
+			<tiempoFin>219731</tiempoFin>
+			<fraseOriginal>Just medals and scars</fraseOriginal>
+			<fraseTraducida>Sólo medallas y cicatrices</fraseTraducida>
+		</frase>
+		<frase>
+			<tiempoIni>219756</tiempoIni>
+			<tiempoFin>223303</tiempoFin>
+			<fraseOriginal>So damn proud of me</fraseOriginal>
+			<fraseTraducida>Tan (jodidamente) orgullosos de mí</fraseTraducida>
+		</frase>
+		<frase>
+			<tiempoIni>223328</tiempoIni>
+			<tiempoFin>226248</tiempoFin>
+			<fraseOriginal>And I brought home that flag</fraseOriginal>
+			<fraseTraducida>Y traje a casa esa bandera </fraseTraducida>
+		</frase>
+		<frase>
+			<tiempoIni>226273</tiempoIni>
+			<tiempoFin>229155</tiempoFin>
+			<fraseOriginal>Now it gathers dust</fraseOriginal>
+			<fraseTraducida>Ahora recoge polvo</fraseTraducida>
+		</frase>
+		<frase>
+			<tiempoIni>229180</tiempoIni>
+			<tiempoFin>232420</tiempoFin>
+			<fraseOriginal>But it's a flag that I love</fraseOriginal>
+			<fraseTraducida>Pero es una bandera que amo </fraseTraducida>
+		</frase>
+		<frase>
+			<tiempoIni>232445</tiempoIni>
+			<tiempoFin>236393</tiempoFin>
+			<fraseOriginal>It's the only flag I trust</fraseOriginal>
+			<fraseTraducida>Y es la única bandera en la que confío</fraseTraducida></frase>
+		<frase>
+			<tiempoIni>236418</tiempoIni>
+			<tiempoFin>241774</tiempoFin>
+			<fraseOriginal>He said, "Son, have you seen the world?</fraseOriginal>
+			<fraseTraducida>Él dijo, "Hijo, ¿has visto el mundo? </fraseTraducida>
+		</frase>
+		<frase>
+			<tiempoIni>241799</tiempoIni>
+			<tiempoFin>249388</tiempoFin>
+			<fraseOriginal>Well what would you say, if I said that you could?"</fraseOriginal>
+			<fraseTraducida>Bien, ¿qué dirías si te dijera que podrías?</fraseTraducida>
+		</frase>
+	</letra>
+</cancion>
