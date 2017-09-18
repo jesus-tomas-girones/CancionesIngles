@@ -42,5 +42,10 @@
     <string name="lectura">Lectura</string>
     <string name="repetir">Repetir</string>
     <string name="confirmar">Confirmar</string>
+    <string name="title_activity_tabbed">Canciones ingles</string>
+    <string name="section_format">Hello World from section: %1$d</string>
+
+    <string name="section_downloaded">Descargadas</string>
+    <string name="section_availables">Disponibles</string>
 
 </resources>

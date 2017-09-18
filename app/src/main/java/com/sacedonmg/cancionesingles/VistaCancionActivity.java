@@ -230,6 +230,7 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
         mediaPlayer.setOnPreparedListener(this);
 
         mediaController = new MediaController(this);
+        mediaController.setVisibility(View.VISIBLE);
         try {
             if (validarLeerSD()) {
                 mediaPlayer.setDataSource(rutaAudio(cancion.getNombreFichero()));

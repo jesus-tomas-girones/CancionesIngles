@@ -22,6 +22,16 @@ public enum Dificultad {
         for (Dificultad dificultad : Dificultad.values()){
             resultado[dificultad.ordinal()] = dificultad.textoDificultad;
         }
+
         return resultado;
+    }
+
+    public static Dificultad getByKey(int key){
+        switch (key){
+            case 0: return FACIL;
+            case 1: return MEDIO;
+            case 2: return DIFICIL;
+            default: return FACIL;
+        }
     }
 }

@@ -1,130 +1,52 @@
 package com.sacedonmg.cancionesingles;
 
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.GridLayoutManager;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.view.ViewGroup;
 
 import java.io.File;
-import java.util.Vector;
-import static com.sacedonmg.cancionesingles.UtilidadesCanciones.*;
 
-public class MainActivity extends AppCompatActivity {
+import static com.sacedonmg.cancionesingles.UtilidadesCanciones.copyFileFromAssets;
+import static com.sacedonmg.cancionesingles.UtilidadesCanciones.generarFicheros;
+import static com.sacedonmg.cancionesingles.UtilidadesCanciones.rutaCarpeta;
+import static com.sacedonmg.cancionesingles.UtilidadesCanciones.sincroListReproduccion;
+import static com.sacedonmg.cancionesingles.UtilidadesCanciones.validarEscribirSD;
+import static com.sacedonmg.cancionesingles.UtilidadesCanciones.validarLeerSD;
+
+public class MainActivity extends Fragment {
 
     public static Canciones vectorCanciones = new CancionesVector();
     private static final String LOG_TAG = "MainActivity";
 
     private RecyclerView recyclerView;
-    public AdaptadorCanciones adaptador;
+    public AdaptadorCancionesLocal adaptador;
     private RecyclerView.LayoutManager layoutManager;
+    private View rootView;
+
+    private int ACTIVIDAD_VISTA_CANCION = 4567;
+    private int ACTIVIDAD_EDICION = 5678;
+    
+    public MainActivity() {}
+
+    public static MainActivity newInstance() {
+        MainActivity fragment = new MainActivity();
+        return fragment;
+    }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setImageResource(android.R.drawable.ic_popup_sync);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                sincroListReproduccion();
-                inicializaVista();
-
-            }
-        });
-
+        rootView = inflater.inflate(R.layout.activity_main, container, false);
         inicializaDatos();
         inicializaVista();
-
-
+        return rootView;
     }
-
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            lanzarPreferencias();
-            return true;
-        }
-        if(id == R.id.nuevo){
-            lanzarNuevo();
-            return true;
-        }
-        if (id == R.id.acercaDe){
-            lanzarAcercaDe();
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-
-    /***
-     * Mostrar preferencias
-     */
-    public void lanzarPreferencias(){
-        Intent i = new Intent(this, PreferenciasActivity.class);
-        startActivity(i);
-    }
-
-    /**
-     * Lanzar actividad Acerca De ...
-     */
-    public void lanzarAcercaDe(){
-        Intent i = new Intent(this, AcercaDeActivity.class);
-        startActivity(i);
-    }
-
-    /***
-     * Lanza la actividad que permite insertar nuevas canciones
-     */
-    public void lanzarNuevo(){
-        new AlertDialog.Builder(this)
-                .setTitle(R.string.titulo_nuevo)
-                .setMessage(R.string.mensaje_nuevo)
-                .setPositiveButton(R.string.confirmar, new DialogInterface.OnClickListener(){
-                    public void onClick(DialogInterface dialog, int whichButton){
-
-                        Intent i = new Intent (MainActivity.this, EdicionNuevaCancionActivity.class);
-                        i.putExtra("editar",false);
-                        startActivityForResult(i,5678);
-                    }
-
-                })
-                .setNegativeButton(R.string.cancelar,null)
-                .show();
-    }
-
-
 
 
      /** Inicializar datos de la Aplicación:
@@ -132,9 +54,7 @@ public class MainActivity extends AppCompatActivity {
      *   Carga la lista de reproducción en función de los xml que encuentra en la carpeta SD "cancionesingles"
      */
     public void inicializaDatos (){
-
         boolean sincronizar = false;
-
         if(validarLeerSD()){
 
             File carpeta = new File(rutaCarpeta);
@@ -150,7 +70,6 @@ public class MainActivity extends AppCompatActivity {
             sincroListReproduccion();
 
         }
-
     }
 
     /**
@@ -173,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
                 for (String rutaFicheroDemo : ficherosDemo) {    ///Copiamos todos los ficherosDemo de Assets a la SD
                     try {
                         String rutaFicheroSD = rutaCarpeta + rutaFicheroDemo;
-                        copyFileFromAssets(this, rutaFicheroDemo, rutaFicheroSD);
+                        copyFileFromAssets(getContext(), rutaFicheroDemo, rutaFicheroSD);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -189,43 +108,36 @@ public class MainActivity extends AppCompatActivity {
         return resultado;
     }
 
-
-
-
-
-
     @Override
-    protected void onActivityResult(int requestCode, int resulCode, Intent data){
-        if(requestCode == 4567 || requestCode == 5678) {
+    public void onActivityResult(int requestCode, int resulCode, Intent data){
+        if(requestCode == ACTIVIDAD_VISTA_CANCION || requestCode == ACTIVIDAD_EDICION) {
             inicializaVista();
         }
     }
 
-    @Override
+    /*@Override
     public void onBackPressed(){
         finish();
-    }
+    }*/
 
 
     /***
      * Inicializa la vista recyclerView.
      */
-    public void inicializaVista(){
-        recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        adaptador = new AdaptadorCanciones(this, vectorCanciones);
+    public void inicializaVista() {
+        recyclerView = (RecyclerView) rootView.findViewById(R.id.recycler_view);
+        adaptador = new AdaptadorCancionesLocal(getContext(), vectorCanciones);
         recyclerView.setAdapter(adaptador);
-        layoutManager = new LinearLayoutManager(this);
+        layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
 
         adaptador.setOnItemClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
-                Intent i = new Intent(MainActivity.this, VistaCancionActivity.class);
+                Intent i = new Intent(getContext(), VistaCancionActivity.class);
                 i.putExtra("id",(long)recyclerView.getChildAdapterPosition(v));
-                startActivityForResult(i,4567);
-
+                startActivityForResult(i, ACTIVIDAD_VISTA_CANCION);
             }
-
         });
     }
 

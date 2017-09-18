@@ -2,7 +2,6 @@ package com.sacedonmg.cancionesingles;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.media.Image;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,7 +14,7 @@ import static com.sacedonmg.cancionesingles.UtilidadesCanciones.*;
 /**
  * Created by MGS on 03/09/2016.
  */
-public class AdaptadorCanciones extends RecyclerView.Adapter<AdaptadorCanciones.ViewHolder> {
+public class AdaptadorCancionesLocal extends RecyclerView.Adapter<AdaptadorCancionesLocal.ViewHolder> {
 
     protected Canciones canciones;
     protected LayoutInflater inflador;
@@ -26,7 +25,7 @@ public class AdaptadorCanciones extends RecyclerView.Adapter<AdaptadorCanciones.
         this.onClickListener = onClickListener;
     }
 
-    public AdaptadorCanciones(Context contexto, Canciones canciones) {
+    public AdaptadorCancionesLocal(Context contexto, Canciones canciones) {
         this.contexto = contexto;
         this.canciones = canciones;
         inflador = (LayoutInflater) contexto.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -81,7 +80,6 @@ public class AdaptadorCanciones extends RecyclerView.Adapter<AdaptadorCanciones.
         Float valorRating = obtenerValorDificultad(cancion.getDificultad().getTextoDificultad());
         holder.dificultad.setRating(valorRating);
         holder.dificultad.isIndicator();
-
     }
 
     @Override

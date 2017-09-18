@@ -1,6 +1,5 @@
 package com.sacedonmg.cancionesingles;
 
-import android.content.Context;
 import android.util.Log;
 import android.util.Xml;
 
@@ -13,15 +12,19 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-import static com.sacedonmg.cancionesingles.UtilidadesCanciones.*;
+import static com.sacedonmg.cancionesingles.UtilidadesCanciones.EXTENSION_TXTORIGINAL;
+import static com.sacedonmg.cancionesingles.UtilidadesCanciones.EXTENSION_TXTTRADUCIDO;
+import static com.sacedonmg.cancionesingles.UtilidadesCanciones.EXTENSION_XML;
+import static com.sacedonmg.cancionesingles.UtilidadesCanciones.rutaCarpeta;
+import static com.sacedonmg.cancionesingles.UtilidadesCanciones.sincroListReproduccion;
+import static com.sacedonmg.cancionesingles.UtilidadesCanciones.validarEscribirSD;
+import static com.sacedonmg.cancionesingles.UtilidadesCanciones.validarLeerSD;
 
 /**
  * Created by MGS on 09/07/2016.
@@ -30,15 +33,15 @@ public class Cancion {
     private static final String LOG_TAG = "Cancion";
     private String titulo;
     private String autor;
-    private Genero genero;
-    private Dificultad dificultad;
+    private int genero;
+    private int dificultad;
     private String nombreFichero;
 
 
     private Boolean etiquetado;
     private List<Frase> letra;
 
-    public Cancion ( String titulo, String autor, Genero genero, Dificultad dificultad, String nombreFichero, Boolean etiquetado, ArrayList<Frase> letra){
+    public Cancion ( String titulo, String autor, int genero, int dificultad, String nombreFichero, Boolean etiquetado, ArrayList<Frase> letra){
         this.titulo = titulo;
         this.autor = autor;
         this.genero = genero;
@@ -50,8 +53,8 @@ public class Cancion {
     public Cancion (){
         this.titulo = "";
         this.autor = "";
-        this.genero = Genero.OTROS;
-        this.dificultad = Dificultad.FACIL;
+        this.genero = Genero.OTROS.ordinal();
+        this.dificultad = Dificultad.FACIL.ordinal();
         this.nombreFichero = "";
         this.etiquetado = false;
         this.letra = new ArrayList<Frase>();
@@ -74,18 +77,18 @@ public class Cancion {
     }
 
     public Genero getGenero() {
-        return genero;
+        return Genero.getByKey(genero);
     }
 
-    public void setGenero(Genero genero) {
+    public void setGenero(int genero) {
         this.genero = genero;
     }
 
     public Dificultad getDificultad() {
-        return dificultad;
+        return Dificultad.getByKey(dificultad);
     }
 
-    public void setDificultad(Dificultad dificultad) {
+    public void setDificultad(int dificultad) {
         this.dificultad = dificultad;
     }
 
@@ -132,12 +135,10 @@ public class Cancion {
 
         this.titulo =  manejadorXML.getCancionXML().getTitulo();
         this.autor =  manejadorXML.getCancionXML().getAutor();
-        this.genero = manejadorXML.getCancionXML().getGenero();
-        this.dificultad = manejadorXML.getCancionXML().getDificultad();
+        this.genero = manejadorXML.getCancionXML().getGenero().ordinal();
+        this.dificultad = manejadorXML.getCancionXML().getDificultad().ordinal();
         this.etiquetado =  manejadorXML.getCancionXML().getEtiquetado();
         this.letra = manejadorXML.getCancionXML().getLetra();
-
-
     }
 
     /***
@@ -162,10 +163,10 @@ public class Cancion {
                 serializador.text(this.autor);
                 serializador.endTag("","autor");
                 serializador.startTag("","genero");
-                serializador.text(String.valueOf(this.genero.ordinal()));
+                serializador.text(String.valueOf(this.genero));
                 serializador.endTag("","genero");
                 serializador.startTag("","dificultad");
-                serializador.text(String.valueOf(this.dificultad.ordinal()));
+                serializador.text(String.valueOf(this.dificultad));
                 serializador.endTag("","dificultad");
                 serializador.startTag("","etiquetado");
                 serializador.text(String.valueOf(this.etiquetado));
@@ -260,6 +261,17 @@ public class Cancion {
         return borrado;
     }
 
+    @Override
+    public String toString(){
+        String mensaje = "TÍtulo: " + this.titulo +"\n" +
+                "Autor: " + this.autor +"\n" +
+                "Dificultad: " + Dificultad.getByKey(this.dificultad).getTextoDificultad() +"\n"+
+                "Genero: " + Genero.getByKey(this.genero).getTextoGenero() +"\n"+
+                "Etiquetado: " + this.etiquetado.toString() +"\n"+
+                "Nombre Fichero: "+this.nombreFichero +"\n";
+        return mensaje;
+    }
+
 
     /**
      * Permite mostrar todos los atributos que componen el objeto canción
@@ -267,8 +279,8 @@ public class Cancion {
     public void toStringCancion(){
         String mensaje= "TÍtulo: " + this.titulo +"\n" +
                 "Autor: " + this.autor +"\n" +
-                "Dificultad: " + this.dificultad.getTextoDificultad() +"\n"+
-                "Genero: " + this.genero.getTextoGenero() +"\n"+
+                "Dificultad: " + Dificultad.getByKey(this.dificultad).getTextoDificultad() +"\n"+
+                "Genero: " + Genero.getByKey(this.genero).getTextoGenero() +"\n"+
                 "Etiquetado: " + this.etiquetado.toString() +"\n"+
                 "Nombre Fichero: "+this.nombreFichero +"\n";
         for (Frase frase:this.letra){
@@ -277,7 +289,7 @@ public class Cancion {
                     "FraseOriginal: " + frase.getFraseOriginal()+" "+
                     "FraseTraducida: " + frase.getFraseTraducida()+"\n";
         }
-        Log.d(LOG_TAG, mensaje);
 
+        Log.d(LOG_TAG, mensaje);
     }
 }
