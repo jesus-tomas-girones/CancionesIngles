@@ -13,6 +13,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -31,6 +32,7 @@ public class TabbedActivity extends AppCompatActivity {
     };
 
     private ViewPager mViewPager;
+    private Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +57,7 @@ public class TabbedActivity extends AppCompatActivity {
             }
         });
 
+        context = this;
     }
 
 
@@ -84,13 +87,12 @@ public class TabbedActivity extends AppCompatActivity {
      * Lanza la actividad que permite insertar nuevas canciones
      */
     public void lanzarNuevo(){
-        final Context contexto = this;
         new AlertDialog.Builder(this)
                 .setTitle(R.string.titulo_nuevo)
                 .setMessage(R.string.mensaje_nuevo)
                 .setPositiveButton(R.string.confirmar, new DialogInterface.OnClickListener(){
                     public void onClick(DialogInterface dialog, int whichButton){
-                        Intent i = new Intent (contexto, EdicionNuevaCancionActivity.class);
+                        Intent i = new Intent (context, EdicionNuevaCancionActivity.class);
                         i.putExtra("editar",false);
                         startActivityForResult(i, 5678);
                     }
@@ -159,11 +161,12 @@ public class TabbedActivity extends AppCompatActivity {
 
         @Override
         public Fragment getItem(int position) {
+            Log.e("TabbedActivity", ""+position);
             switch (position) {
                 case 0:
-                    return MainActivity.newInstance();
+                    return ListaCanciones.newInstance();
                 case 1:
-                    return PlaceholderFragment.newInstance(position + 1);
+                    return ListaCancionesRemoto.newInstance();
                 default:
                     return PlaceholderFragment.newInstance(position + 1);
             }
@@ -182,5 +185,10 @@ public class TabbedActivity extends AppCompatActivity {
 
             return null;
         }
+    }
+
+    @Override
+    public void onBackPressed(){
+        finish();
     }
 }

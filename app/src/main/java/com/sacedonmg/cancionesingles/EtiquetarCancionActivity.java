@@ -1,7 +1,5 @@
 package com.sacedonmg.cancionesingles;
 
-import android.graphics.Bitmap;
-import android.media.Image;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -11,12 +9,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.io.IOException;
 
-import static com.sacedonmg.cancionesingles.UtilidadesCanciones.obtenerPortadaSD;
 import static com.sacedonmg.cancionesingles.UtilidadesCanciones.rutaAudio;
 import static com.sacedonmg.cancionesingles.UtilidadesCanciones.validarLeerSD;
 
@@ -96,7 +92,7 @@ public class EtiquetarCancionActivity extends AppCompatActivity {
      * Inicializa todos los componentes que necesita la vista Etiquetar así como el MediaPlayer
      */
     public void inicializaDatosEtiquetar(){
-        cancion = MainActivity.vectorCanciones.elemento((int)id);
+        cancion = ListaCanciones.vectorCanciones.elemento((int)id);
 
         tFraseOriginal = (TextView)findViewById(R.id.fraseOriginal);
         tFraseTraducida = (TextView)findViewById(R.id.fraseTraducida);

@@ -11,9 +11,6 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import static com.sacedonmg.cancionesingles.UtilidadesCanciones.EXTENSION_XML;
-import static com.sacedonmg.cancionesingles.UtilidadesCanciones.sincroListReproduccion;
-
 /**
  * Created by MGS on 21/07/2016.
  */
@@ -112,7 +109,7 @@ public class EdicionNuevaCancionActivity extends AppCompatActivity {
      * @param id identificador del objeto canción dentro del vector canciones
      */
     public void mostrarDatosCancion(int id){
-        cancion = MainActivity.vectorCanciones.elemento(id);
+        cancion = ListaCanciones.vectorCanciones.elemento(id);
         titulo.setText(cancion.getTitulo());
         autor.setText(cancion.getAutor());
         genero.setSelection(cancion.getGenero().ordinal());
@@ -129,8 +126,8 @@ public class EdicionNuevaCancionActivity extends AppCompatActivity {
 
         cancion.setTitulo(titulo.getText().toString());
         cancion.setAutor(autor.getText().toString());
-        cancion.setGenero(Genero.values()[genero.getSelectedItemPosition()]);
-        cancion.setDificultad(Dificultad.values()[dificultad.getSelectedItemPosition()]);
+        cancion.setGenero(genero.getSelectedItemPosition());
+        cancion.setDificultad(dificultad.getSelectedItemPosition());
 
         if(!editarCancion){
             cancion.setEtiquetado(false);

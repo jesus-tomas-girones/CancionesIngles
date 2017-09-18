@@ -8,35 +8,44 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.graphics.Bitmap;
 import android.media.MediaPlayer;
-import android.os.Build;
-import android.speech.tts.UtteranceProgressListener;
-import android.view.MotionEvent;
-import android.widget.MediaController;
 import android.media.MediaPlayer.OnPreparedListener;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeech.OnInitListener;
+import android.speech.tts.UtteranceProgressListener;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.ImageView;
+import android.widget.MediaController;
 import android.widget.TextView;
 
+import com.android.volley.toolbox.NetworkImageView;
+
+import org.xml.sax.InputSource;
+import org.xml.sax.XMLReader;
+
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Locale;
 
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 
-import static com.sacedonmg.cancionesingles.UtilidadesCanciones.*;
+import static com.sacedonmg.cancionesingles.UtilidadesCanciones.validarLeerSD;
 
 /**
  * Created by MGS on 19/07/2016.
@@ -54,7 +63,7 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
     private MediaPlayer mediaPlayer;
     private MediaController mediaController;
     private TextView titulo;
-    private ImageView portada;
+    private NetworkImageView portada;
     private TextView fOriginal;
     private TextView fTraducida;
     private Button bNormal, bLectura, bRepetir;
@@ -72,7 +81,9 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
     private boolean versionLollipop;
 
 
-
+    private int ACTIVIDAD_VISTA_CANCION_LOCAL = 4567;
+    private int ACTIVIDAD_VISTA_CANCION_REMOTA = 4568;
+    private int source;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,6 +92,7 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
 
         Bundle extras = getIntent().getExtras();
         id = extras.getLong("id", -1);
+        source = extras.getInt("source", -1);
         tts = new TextToSpeech( this, this );
 
         ponInfoCancion((int) id);
@@ -120,8 +132,8 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
                 .setMessage(R.string.mensaje_borrar)
                 .setPositiveButton(R.string.confirmar, new DialogInterface.OnClickListener(){
                     public void onClick(DialogInterface dialog, int whichButton){
-                        MainActivity.vectorCanciones.borrar((int)id);
-                        Intent i = new Intent (VistaCancionActivity.this, MainActivity.class);
+                        ListaCanciones.vectorCanciones.borrar((int)id);
+                        Intent i = new Intent (VistaCancionActivity.this, ListaCanciones.class);
                         startActivity(i);
                     }
 
@@ -174,80 +186,102 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
             ponInfoCancion((int)id);
             findViewById(R.id.vista_cancion).invalidate();
         }
-        if (requestCode == 4578 && resulCode== Activity.RESULT_OK && data!=null)
-        {
+
+        if (requestCode == 4578 && resulCode== Activity.RESULT_OK && data!=null) {
             pulsadoMicro = true;
             ArrayList<String> text=data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
             fTraducida.setText(text.get(0));
-
         }
     }
 
+
+    public void bindViews() {
+        titulo = (TextView) findViewById(R.id.tituloCancion);
+        portada = (NetworkImageView) findViewById(R.id.portada);
+        fOriginal = (TextView) findViewById(R.id.f_original);
+        fTraducida = (TextView) findViewById(R.id.f_traducida);
+        fauxiliar = (TextView) findViewById(R.id.f_aux);
+        bMicro = (ImageButton)findViewById(R.id.bMicro);
+        bNormal = (Button)findViewById(R.id.bnormal);
+        bLectura = (Button)findViewById(R.id.blectura);
+        bRepetir = (Button)findViewById(R.id.brepetir);
+    }
+
+    private Cancion getCancionById(int id) {
+        if (source == ACTIVIDAD_VISTA_CANCION_LOCAL) {
+            return CancionesVector.getInstance().elemento(id);
+        }
+
+        return ListaCancionesRemoto.adaptador.getItem(id);
+    }
+
+
+    private void getEtiquetado(final Cancion cancion) {
+        if (source == ACTIVIDAD_VISTA_CANCION_LOCAL) {
+            if(!cancion.getEtiquetado()){
+                lanzarAlertaEtiquetado();
+            }
+        }
+
+
+        final Thread waitingThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                cancion.downloadXML();
+
+                if (!cancion.getEtiquetado()){
+                    lanzarAlertaEtiquetado();
+                }
+            }
+
+        });
+
+        waitingThread.start();
+    }
 
     /**
      * Asigna los datos del elemento cancion seleccionado a la Vista_Cancion
      * @param id posición del objeto canción en el vector canciones.
      */
     public void ponInfoCancion(int id) {
+        cancion = getCancionById(id);
+        Log.e(LOG_TAG, cancion.toString());
 
-        cancion = MainActivity.vectorCanciones.elemento(id);
+        getEtiquetado(cancion);
+        bindViews();
+        titulo.setText(cancion.getTitulo());
+        portada.setImageUrl(cancion.getImagen(), VolleySingleton.getInstance(getApplicationContext()).getLectorImagenes());
 
-        if(!cancion.getEtiquetado()){
-            lanzarAlertaEtiquetado();
-        }
-
-
-            titulo = (TextView) findViewById(R.id.tituloCancion);
-            titulo.setText(cancion.getTitulo());
-
-            portada = (ImageView) findViewById(R.id.portada);
-            Bitmap image = obtenerPortadaSD(this, cancion.getNombreFichero());
-            if (image != null) {
-                portada.setImageBitmap(image);
-            }
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
             titulo.setVisibility(View.INVISIBLE);
             portada.setVisibility(View.INVISIBLE);
         }
 
-        fOriginal = (TextView) findViewById(R.id.f_original);
-        fTraducida = (TextView) findViewById(R.id.f_traducida);
-        fauxiliar = (TextView) findViewById(R.id.f_aux);
         fauxiliar.setVisibility(View.INVISIBLE);
-
-        bMicro = (ImageButton)findViewById(R.id.bMicro);
         bMicro.setVisibility(View.INVISIBLE);
-
-
-        bNormal = (Button)findViewById(R.id.bnormal);
-        bLectura = (Button)findViewById(R.id.blectura);
-        bRepetir = (Button)findViewById(R.id.brepetir);
 
         if (mediaPlayer != null) {
             mediaPlayer.release();
         }
+
         mediaPlayer = new MediaPlayer();
         mediaPlayer.setOnPreparedListener(this);
 
         mediaController = new MediaController(this);
         mediaController.setVisibility(View.VISIBLE);
         try {
+            Uri audio = Uri.parse(cancion.getAudio());
             if (validarLeerSD()) {
-                mediaPlayer.setDataSource(rutaAudio(cancion.getNombreFichero()));
+                mediaPlayer.setDataSource(this, audio);
                 mediaPlayer.prepare();
-
             }
+
         } catch (IOException e) {
             Log.d(LOG_TAG, "No se puede reproducir el audio: " + cancion.getNombreFichero(), e);
         }
 
         inicializaVistas();
-
-
-
     }
-
-
 
     /***
      * Lanza el AlertDialog si una canción no está etiquetada para su reproducción
@@ -272,7 +306,6 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
      * inicializa las Vistas a su estado original teniendo en cuenta si la canción está etiquetada o no
      */
     public void inicializaVistas(){
-
         fTraducida.setText("");
         fOriginal.setText("");
         fauxiliar.setText("");
@@ -280,7 +313,7 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
             titulo.setVisibility(View.VISIBLE);
             portada.setVisibility(View.VISIBLE);
-        }else{
+        }else {
             titulo.setVisibility(View.INVISIBLE);
             portada.setVisibility(View.INVISIBLE);
         }
@@ -301,9 +334,8 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
             fOriginal.setVisibility(View.VISIBLE);
             fTraducida.setVisibility(View.VISIBLE);
         }
+
         pulsadoNormal = false;
-
-
     }
 
 
@@ -489,9 +521,7 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
             }
 
             contador++;
-
         }
-
 
         /***
          * Gestión del modo Lectura Inicial
@@ -714,26 +744,21 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
 
     @Override
     public void onPrepared(MediaPlayer mediaplayer) {
-
         mediaController.setMediaPlayer(this);
         mediaController.setAnchorView(findViewById(R.id.vista_cancion));
         mediaController.setEnabled(true);
         if(pulsadoNormal) {
             mediaController.show();
         }
-
-
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent evento) {
-        if(pulsadoNormal) {
+        if (pulsadoNormal) {
             mediaController.show();
         }
         return false;
     }
-
-
 
     @Override
     public boolean canPause() {

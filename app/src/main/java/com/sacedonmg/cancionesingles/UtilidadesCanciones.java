@@ -1,29 +1,23 @@
 package com.sacedonmg.cancionesingles;
 
 
-import android.app.Application;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
 import android.os.Handler;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-import static com.sacedonmg.cancionesingles.MainActivity.vectorCanciones;
+import static com.sacedonmg.cancionesingles.ListaCanciones.vectorCanciones;
 
 /**
  * Created by MGS on 09/07/2016.
@@ -69,7 +63,7 @@ public final class UtilidadesCanciones {
      *
      * @return  Vector con los nombres de los ficheros mas las extensiones
      */
-    static String[] generarFicheros(){
+    static String[] generarFicheros() {
 
         String [] nombreFicheros = new String[] {
                 nombreFicheroDemo1+ EXTENSION_AUDIO,
@@ -90,9 +84,6 @@ public final class UtilidadesCanciones {
 
         return nombreFicheros;
     }
-
-
-
 
     /**
      * Comprueba si se puede leer de la SD
@@ -201,15 +192,15 @@ public final class UtilidadesCanciones {
      * Sincroinizar Lista Reproducción: Genera un objeto canción por cada xml de la SD y lo añade al vectorCanciones
      */
     static void sincroListReproduccion(){
+        Log.e(LOG_TAG, "sincroListReproduccion");
         List<String> listaFicherosXML = getListOfFilesXML(rutaCarpeta);
         Cancion cancion;
-        vectorCanciones = new CancionesVector();
+        vectorCanciones = CancionesVector.getInstance();
 
-
-        for(String nombreXML:listaFicherosXML){
+        for(String nombreXML: listaFicherosXML){
             cancion = new Cancion ();
 
-            String nombreFichero =nombreXML.substring(0,nombreXML.lastIndexOf("."));
+            String nombreFichero = nombreXML.substring(0, nombreXML.lastIndexOf("."));
             cancion.setNombreFichero(nombreFichero);
             Log.d(LOG_TAG,nombreFichero);
             try {
@@ -235,7 +226,7 @@ public final class UtilidadesCanciones {
         boolean cargadaImagen = false;
 
         if (validarLeerSD()){
-            String rutaImagen= rutaCarpeta+nombreFichero+EXTENSION_IMAGEN;
+            String rutaImagen = rutaCarpeta+nombreFichero+EXTENSION_IMAGEN;
             File file = new File(rutaImagen);
             if(file.exists()){
                 //Tenemos la foto guardada en la SD, asi que la cargamos

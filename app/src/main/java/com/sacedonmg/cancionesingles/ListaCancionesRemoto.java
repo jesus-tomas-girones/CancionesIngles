@@ -19,74 +19,55 @@ import static com.sacedonmg.cancionesingles.UtilidadesCanciones.sincroListReprod
 import static com.sacedonmg.cancionesingles.UtilidadesCanciones.validarEscribirSD;
 import static com.sacedonmg.cancionesingles.UtilidadesCanciones.validarLeerSD;
 
-public class MainActivity extends Fragment {
+public class ListaCancionesRemoto extends Fragment {
 
-    public static Canciones vectorCanciones = new CancionesVector();
-    private static final String LOG_TAG = "MainActivity";
+    public static Canciones vectorCanciones = CancionesVector.getInstance();
+    private static final String LOG_TAG = "ListaCanciones";
 
     private RecyclerView recyclerView;
-    public AdaptadorCancionesLocal adaptador;
+    public static AdaptadorCancionesRemoto adaptador;
     private RecyclerView.LayoutManager layoutManager;
     private View rootView;
 
-    private int ACTIVIDAD_VISTA_CANCION = 4567;
+    private int ACTIVIDAD_VISTA_CANCION_REMOTA = 4568;
     private int ACTIVIDAD_EDICION = 5678;
-    
-    public MainActivity() {}
 
-    public static MainActivity newInstance() {
-        MainActivity fragment = new MainActivity();
+    public ListaCancionesRemoto() {
+    }
+
+    public static ListaCancionesRemoto newInstance() {
+        ListaCancionesRemoto fragment = new ListaCancionesRemoto();
+        Bundle args = new Bundle();
+        fragment.setArguments(args);
         return fragment;
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        Log.e(LOG_TAG, "onCreateView");
         super.onCreate(savedInstanceState);
         rootView = inflater.inflate(R.layout.activity_main, container, false);
-        inicializaDatos();
         inicializaVista();
         return rootView;
     }
 
 
-     /** Inicializar datos de la Aplicación:
-     *   Si es la primera vez (instala la aplicación), guarda en la SD los ficheros para una canción DEMO.
-     *   Carga la lista de reproducción en función de los xml que encuentra en la carpeta SD "cancionesingles"
-     */
-    public void inicializaDatos (){
-        boolean sincronizar = false;
-        if(validarLeerSD()){
-
-            File carpeta = new File(rutaCarpeta);
-
-            if(!carpeta.exists()) {  //Es la primera vez que se instala la aplicación.
-                sincronizar = crearCarpeta(carpeta);
-            }
-            else{ //ya existia la carpeta
-                sincronizar = true;
-            }
-        }
-        if(sincronizar){
-            sincroListReproduccion();
-
-        }
-    }
-
     /**
      * Crea la carpeta cancionesingles en la SD cuando se instala por primera vez la aplicación
      * y guarda los ficheros Demo de Assets en la SD
+     *
      * @param carpeta carpeta cancionesingles a crear en la SD
      * @return
      */
-    public boolean crearCarpeta(File carpeta){
+    public boolean crearCarpeta(File carpeta) {
         boolean resultado = false;
 
 
-        if (validarEscribirSD()){
+        if (validarEscribirSD()) {
             carpeta.mkdirs();
             Log.v(LOG_TAG, "Carpeta cancionesingles creada en la SD");
 
-            if(carpeta.exists()) {
+            if (carpeta.exists()) {
                 String[] ficherosDemo = generarFicheros();
 
                 for (String rutaFicheroDemo : ficherosDemo) {    ///Copiamos todos los ficherosDemo de Assets a la SD
@@ -96,12 +77,10 @@ public class MainActivity extends Fragment {
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-
                 }
                 resultado = true;
-            }
-            else{
-                Log.v(LOG_TAG,"ERROR: Carpeta cancionesingles no creada");
+            } else {
+                Log.v(LOG_TAG, "ERROR: Carpeta cancionesingles no creada");
                 resultado = false;
             }
         }
@@ -109,38 +88,33 @@ public class MainActivity extends Fragment {
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resulCode, Intent data){
-        if(requestCode == ACTIVIDAD_VISTA_CANCION || requestCode == ACTIVIDAD_EDICION) {
+    public void onActivityResult(int requestCode, int resulCode, Intent data) {
+        if (requestCode == ACTIVIDAD_VISTA_CANCION_REMOTA || requestCode == ACTIVIDAD_EDICION) {
             inicializaVista();
         }
     }
-
-    /*@Override
-    public void onBackPressed(){
-        finish();
-    }*/
-
 
     /***
      * Inicializa la vista recyclerView.
      */
     public void inicializaVista() {
         recyclerView = (RecyclerView) rootView.findViewById(R.id.recycler_view);
-        adaptador = new AdaptadorCancionesLocal(getContext(), vectorCanciones);
+
+        CancionesSingleton cancionesSingleton = CancionesSingleton.getInstance(getContext());
+        adaptador = new AdaptadorCancionesRemoto(getContext(), cancionesSingleton.getCancionesReference());
+
         recyclerView.setAdapter(adaptador);
         layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
 
-        adaptador.setOnItemClickListener(new View.OnClickListener(){
+        adaptador.setOnItemClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v){
+            public void onClick(View v) {
                 Intent i = new Intent(getContext(), VistaCancionActivity.class);
-                i.putExtra("id",(long)recyclerView.getChildAdapterPosition(v));
-                startActivityForResult(i, ACTIVIDAD_VISTA_CANCION);
+                i.putExtra("id", (long) recyclerView.getChildAdapterPosition(v));
+                i.putExtra("source", ACTIVIDAD_VISTA_CANCION_REMOTA);
+                startActivityForResult(i, ACTIVIDAD_VISTA_CANCION_REMOTA);
             }
         });
     }
-
-
-
 }

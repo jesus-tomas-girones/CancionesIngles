@@ -13,11 +13,20 @@ import static com.sacedonmg.cancionesingles.UtilidadesCanciones.EXTENSION_XML;
 public class CancionesVector implements Canciones {
 
     private static final String LOG_TAG = "CancionesVector";
+    private static CancionesVector instance;
 
     protected List<Cancion> vectorCanciones;
 
-    public CancionesVector() {
+    private CancionesVector() {
         vectorCanciones = new ArrayList<Cancion>();
+    }
+
+    public static CancionesVector getInstance() {
+        if (instance == null) {
+            instance = new CancionesVector();
+        }
+
+        return instance;
     }
 
     public Cancion elemento(int id) {
@@ -25,6 +34,7 @@ public class CancionesVector implements Canciones {
     }
 
     public void anyade(Cancion cancion) {
+        Log.e(LOG_TAG, "Nueva canción: " + cancion.getTitulo());
         vectorCanciones.add(cancion);
     }
 
@@ -40,6 +50,7 @@ public class CancionesVector implements Canciones {
             Log.d(LOG_TAG, "Fichero "+ cancion.getNombreFichero()+EXTENSION_XML + " borrado");
             vectorCanciones.remove(id);
         }
+
         else{
             Log.e(LOG_TAG, "Error borrando fichero: " + cancion.getNombreFichero()+EXTENSION_XML );
         }

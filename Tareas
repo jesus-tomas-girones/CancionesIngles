@@ -4,12 +4,12 @@ A)  Segundo listados: con canciones compartidas en una base de datos Firebase.
 
 * A.1 – Crear un fichero JSON con la base de datos. Subirla al servidor http://mmoviles.upv.es/canciones_ingles. Subir los ficheros asociados a esta base de datos.
 * A.2 – Crear proyecto Firebase, exportar la base de datos y dar permiso.
-- A.3 -	Crear un IU que permita seleccionar entre “Mis canciones” y “Canciones disponibles”. Otros textos: “Canciones descargadas” y “Canciones disponibles”. Puede ser un Tab como se hizo en Audiolibros.
-  A.4 -	Hacer el listado usando un FirebaseRecyclerAdapter
+* A.3 -	Crear un IU que permita seleccionar entre “Mis canciones” y “Canciones disponibles”. Otros textos: “Canciones descargadas” y “Canciones disponibles”. Puede ser un Tab como se hizo en Audiolibros.
+* A.4 -	Hacer el listado usando un FirebaseRecyclerAdapter
  
 B)  Permitir bajarse una canción: Se descarga los ficheros desde Firebase a memoria local
 
-  B.1 -	Añadir evento onClick al listado y un dialogo que te pregunte si quieres descargar la canción.
+- B.1 -	Añadir evento onClick al listado y un dialogo que te pregunte si quieres descargar la canción.
   B.2 -	Descargar los ficheros a memoria local (p.e. usando Volley)
   B.3 - Actualizar listado de canciones descargadas y pasar a este listado donde se vea la canción descargada.
 

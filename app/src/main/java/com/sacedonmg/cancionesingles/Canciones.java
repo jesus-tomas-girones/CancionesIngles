@@ -10,4 +10,6 @@ public interface Canciones {
     void borrar(int id); //Elimina el elemento con el id indicado
     int tamanyo(); //Devuelve el número de elementos
     void actualiza(int id, Cancion cancion); //Reemplaza un elemento
+
+    // String getXML(int id); //Devuelve el contenido del fichero XML para el elemento con el id indicado
 }
