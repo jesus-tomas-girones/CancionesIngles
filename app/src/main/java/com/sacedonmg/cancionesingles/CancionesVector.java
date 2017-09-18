@@ -12,12 +12,13 @@ import static com.sacedonmg.cancionesingles.UtilidadesCanciones.EXTENSION_XML;
  */
 public class CancionesVector implements Canciones {
 
-    private static final String LOG_TAG = "CancionesVector";
+    private static final String LOG_TAG = "CI::CancionesVector";
     private static CancionesVector instance;
 
     protected List<Cancion> vectorCanciones;
 
     private CancionesVector() {
+        Log.d(LOG_TAG, "CancionesVector");
         vectorCanciones = new ArrayList<Cancion>();
     }
 
@@ -33,9 +34,21 @@ public class CancionesVector implements Canciones {
         return vectorCanciones.get(id);
     }
 
+    public boolean exists(Cancion cancion) {
+        for (Cancion c : vectorCanciones) {
+            if (c.equals(cancion)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public void anyade(Cancion cancion) {
-        Log.e(LOG_TAG, "Nueva canción: " + cancion.getTitulo());
-        vectorCanciones.add(cancion);
+        if (!exists(cancion)) {
+            Log.d(LOG_TAG, "Nueva canción: " + cancion.getTitulo());
+            vectorCanciones.add(cancion);
+        }
     }
 
     public int nuevo() {
@@ -63,4 +76,5 @@ public class CancionesVector implements Canciones {
     public void actualiza(int id, Cancion cancion) {
         vectorCanciones.set(id, cancion);
     }
+
 }

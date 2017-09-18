@@ -36,7 +36,7 @@ import static com.sacedonmg.cancionesingles.UtilidadesCanciones.validarLeerSD;
  * Created by MGS on 09/07/2016.
  */
 public class Cancion {
-    private static final String LOG_TAG = "Cancion";
+    private static final String LOG_TAG = "CI::Cancion";
 
     private String audio;
     private String autor;
@@ -289,9 +289,7 @@ public class Cancion {
                 serializador.endTag("","letra");
                 serializador.endTag("","cancion");
                 serializador.endDocument();
-
                 sincroListReproduccion();
-
             }catch (Exception e){
                 Log.e(LOG_TAG, e.getMessage(), e);
             }
@@ -381,19 +379,25 @@ public class Cancion {
      * Permite mostrar todos los atributos que componen el objeto canción
      */
     public void toStringCancion(){
-        String mensaje= "Título: " + this.titulo +"\n" +
-                "Autor: " + this.autor +"\n" +
-                "Dificultad: " + Dificultad.getByKey(this.dificultad).getTextoDificultad() +"\n"+
-                "Genero: " + Genero.getByKey(this.genero).getTextoGenero() +"\n"+
-                "Etiquetado: " + this.etiquetado.toString() +"\n"+
-                "Nombre Fichero: "+this.nombreFichero +"\n";
-        for (Frase frase:this.letra){
+        String mensaje = toString();
+        /*for (Frase frase:this.letra){
             mensaje += "TiempoIni: " + String.valueOf(frase.getTiempoIni()) +"  "+
                     "TiempoFin: " + String.valueOf(frase.getTiempoFin()) +" "+
                     "FraseOriginal: " + frase.getFraseOriginal()+" "+
                     "FraseTraducida: " + frase.getFraseTraducida()+"\n";
-        }
+        }*/
 
         Log.d(LOG_TAG, mensaje);
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        Cancion cancion = (Cancion) object;
+        boolean equalsTo = false;
+        equalsTo = equalsTo || getTitulo().compareTo(cancion.getTitulo()) == 0;
+        equalsTo = equalsTo || getAutor().compareTo(cancion.getAutor()) == 0;
+        equalsTo = equalsTo || getNombreFichero().compareTo(cancion.getNombreFichero()) == 0;
+        equalsTo = equalsTo || getXml().compareTo(cancion.getXml()) == 0;
+        return equalsTo;
     }
 }

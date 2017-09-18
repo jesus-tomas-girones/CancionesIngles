@@ -7,10 +7,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.RatingBar;
-import android.widget.TextView;
-
-import com.android.volley.toolbox.NetworkImageView;
 
 import static com.sacedonmg.cancionesingles.UtilidadesCanciones.obtenerPortadaSD;
 import static com.sacedonmg.cancionesingles.UtilidadesCanciones.obtenerValorDificultad;
@@ -18,7 +14,7 @@ import static com.sacedonmg.cancionesingles.UtilidadesCanciones.obtenerValorDifi
 /**
  * Created by MGS on 03/09/2016.
  */
-public class AdaptadorCancionesLocal extends RecyclerView.Adapter<AdaptadorCancionesLocal.ViewHolder> {
+public class AdaptadorCancionesLocal extends RecyclerView.Adapter<ViewHolder> {
 
     protected Canciones canciones;
     protected LayoutInflater inflador;
@@ -36,35 +32,20 @@ public class AdaptadorCancionesLocal extends RecyclerView.Adapter<AdaptadorCanci
         inflador = (LayoutInflater) contexto.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
-    //Creamos nuestro viewHolder, con los tipos de elementos a modificar
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-        public TextView titulo;
-        public TextView autor;
-        public NetworkImageView portada;
-        public RatingBar dificultad;
-
-        public ViewHolder(View itemView) {
-            super(itemView);
-            titulo = (TextView) itemView.findViewById(R.id.nombreCancion);
-            autor = (TextView) itemView.findViewById(R.id.autorCancion);
-            portada = (NetworkImageView) itemView.findViewById(R.id.imagenPortada);
-            dificultad = (RatingBar) itemView.findViewById(R.id.ratDificultad);
-        }
-    }
 
     //Creamos el ViewHolder con la vista de un elemento sin personalizar
     @Override
-    public AdaptadorCancionesLocal.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         //Inflamos la vista desde el xml
         View v = inflador.inflate(R.layout.elemento_lista, parent, false);
         v.setOnClickListener(onClickListener);
-        return new AdaptadorCancionesLocal.ViewHolder(v);
+        return new ViewHolder(v);
     }
 
     //Usando como base el ViewHolder y lo personalizamos
     @Override
     public void onBindViewHolder(ViewHolder holder, int posicion) {
-        Cancion cancion = canciones.elemento(posicion);
+        Cancion cancion = getItem(posicion);
         personalizaVistas(holder, cancion);
     }
 

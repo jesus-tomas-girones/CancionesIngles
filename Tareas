@@ -9,9 +9,9 @@ A)  Segundo listados: con canciones compartidas en una base de datos Firebase.
  
 B)  Permitir bajarse una canción: Se descarga los ficheros desde Firebase a memoria local
 
-- B.1 -	Añadir evento onClick al listado y un dialogo que te pregunte si quieres descargar la canción.
-  B.2 -	Descargar los ficheros a memoria local (p.e. usando Volley)
-  B.3 - Actualizar listado de canciones descargadas y pasar a este listado donde se vea la canción descargada.
+- B.1 -	Añadir evento onClick al listado y un dialogo que te pregunte si quieres descargar la canción. -> En lugar de en la lista, en el menu de la pantalla vistaCancion
+-  B.2 -	Descargar los ficheros a memoria local (p.e. usando Volley)
+-  B.3 - Actualizar listado de canciones descargadas y pasar a este listado donde se vea la canción descargada.
 
 C) Permitir subir una canción
   C.1 -	En una primera fase será sin usuario autentificado. (Asegurarse que la BBDD tiene permiso de escritura a todo el mundo.) Simplemente el usuario escogerá la opción “Subir canción a servidor para compartirla”. Esta opción solo ha de poderse seleccionar en canciones creadas por el usuario.

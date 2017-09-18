@@ -20,7 +20,7 @@ import static com.sacedonmg.cancionesingles.UtilidadesCanciones.validarLeerSD;
  * Created by MGS on 06/09/2016.
  */
 public class EtiquetarCancionActivity extends AppCompatActivity {
-    private static final String LOG_TAG = "EtiquetaCancionActivity";
+    private static final String LOG_TAG = "CI::EtiquetaCancion";
     private long id;
     private Cancion cancion;
     private TextView tFraseOriginal;

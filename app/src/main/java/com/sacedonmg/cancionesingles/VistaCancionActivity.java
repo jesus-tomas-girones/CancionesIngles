@@ -4,6 +4,7 @@ package com.sacedonmg.cancionesingles;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -11,6 +12,7 @@ import android.content.res.Configuration;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnPreparedListener;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -32,18 +34,10 @@ import android.widget.TextView;
 
 import com.android.volley.toolbox.NetworkImageView;
 
-import org.xml.sax.InputSource;
-import org.xml.sax.XMLReader;
-
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Locale;
-
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
+import java.util.concurrent.TimeUnit;
 
 import static com.sacedonmg.cancionesingles.UtilidadesCanciones.validarLeerSD;
 
@@ -51,7 +45,7 @@ import static com.sacedonmg.cancionesingles.UtilidadesCanciones.validarLeerSD;
  * Created by MGS on 19/07/2016.
  */
 public class VistaCancionActivity extends AppCompatActivity implements OnInitListener, OnPreparedListener, android.widget.MediaController.MediaPlayerControl {
-    private static final String LOG_TAG = "VistaCancionActivity";
+    private static final String LOG_TAG = "CI::VistaCancionAct";
     private static final String MODO_NORMAL = "0";
     private static final String MODO_LECTURA_INICIAL = "1";
     private static final String MODO_REPETICION = "2";
@@ -84,6 +78,7 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
     private int ACTIVIDAD_VISTA_CANCION_LOCAL = 4567;
     private int ACTIVIDAD_VISTA_CANCION_REMOTA = 4568;
     private int source;
+    private Context mContext;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,14 +89,13 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
         id = extras.getLong("id", -1);
         source = extras.getInt("source", -1);
         tts = new TextToSpeech( this, this );
-
         ponInfoCancion((int) id);
-
+        mContext = this;
     }
 
     @Override
     public boolean onCreateOptionsMenu (Menu menu){
-        getMenuInflater().inflate(R.menu.menu_vista_cancion,menu);
+        getMenuInflater().inflate(R.menu.menu_vista_cancion_remota, menu);
         return true;
     }
 
@@ -117,9 +111,54 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
             case R.id.accion_borrar:
                 borrarCancion((int)id);
                 return true;
+            case R.id.accion_descargar:
+                descargarCancion();
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    public void descargarCancion() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Descargar cancion");
+        builder.setMessage("¿Quiere descargar la canción? Si lo hace la tendrá disponible cuando no tenga conexión a Internet.");
+
+        builder.setPositiveButton(getString(android.R.string.ok), new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                final DownloadFile task = new DownloadFile(mContext);
+                task.execute(cancion.getAudio(), cancion.getImagen(), cancion.getXml(), cancion.getTxt_original(), cancion.getTxt_traducido());
+                final Thread waitingThread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            while(task.getStatus() != AsyncTask.Status.FINISHED) {
+                                TimeUnit.SECONDS.sleep(1);
+                            }
+
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    CancionesVector cancionesVector = CancionesVector.getInstance();
+                                    cancionesVector.anyade(cancion);
+                                    ListaCanciones.adaptador.notifyItemInserted(cancionesVector.tamanyo() - 1);
+                                    finish();
+                                }
+                            });
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+
+                waitingThread.start();
+            }
+        });
+        builder.setNegativeButton(getString(android.R.string.no), new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                dialog.cancel();
+            }
+        });
+        builder.show();
     }
 
     /***
@@ -194,7 +233,6 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
         }
     }
 
-
     public void bindViews() {
         titulo = (TextView) findViewById(R.id.tituloCancion);
         portada = (NetworkImageView) findViewById(R.id.portada);
@@ -215,7 +253,6 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
         return ListaCancionesRemoto.adaptador.getItem(id);
     }
 
-
     private void getEtiquetado(final Cancion cancion) {
         if (source == ACTIVIDAD_VISTA_CANCION_LOCAL) {
             if(!cancion.getEtiquetado()){
@@ -228,7 +265,6 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
             @Override
             public void run() {
                 cancion.downloadXML();
-
                 if (!cancion.getEtiquetado()){
                     lanzarAlertaEtiquetado();
                 }
@@ -338,7 +374,6 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
         pulsadoNormal = false;
     }
 
-
     /***
      * Se activa la repodrucción Modo Normal
      * @param view
@@ -367,13 +402,11 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
         activaReproduccion();
     }
 
-
     /***
      * Se activa la repodrucción Modo Lectura
      * @param view
      */
     public void sePulsaLectura(View view){
-
         pulsadoNormal=false;
         contador=0;
         descativarBotones();
@@ -386,7 +419,6 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
      * @param view
      */
     public void sePulsaRepetir(View view){
-
         pulsadoNormal=false;
         contador=0;
         descativarBotones();
@@ -396,14 +428,12 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
         fOriginal.setVisibility(View.INVISIBLE);
         fauxiliar.setVisibility(View.VISIBLE);
         activaReproduccion();
-
     }
 
     /****
      * Activamos la ejecución del thread que gestiona los modos de reproducción
      */
     public void activaReproduccion(){
-
         corriendo = true;
         miThread = new MiThread();
         miThread.start();
@@ -413,7 +443,6 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
      * Desactiva todos los botones
      */
     public void descativarBotones(){
-
         bNormal.setVisibility(View.INVISIBLE);
         bRepetir.setVisibility(View.INVISIBLE);
         bLectura.setVisibility(View.INVISIBLE);

@@ -16,7 +16,7 @@ import android.widget.TextView;
  */
 public class EdicionNuevaCancionActivity extends AppCompatActivity {
 
-    private static final String LOG_TAG = "EdiNuevaCancionActivity";
+    private static final String LOG_TAG = "CI::EdiNuevaCancion";
     private long id;
     private Cancion cancion;
     private EditText titulo;
@@ -133,7 +133,7 @@ public class EdicionNuevaCancionActivity extends AppCompatActivity {
             cancion.setEtiquetado(false);
 
             if(nombreFichero.getText().toString().isEmpty()) {
-                Log.e(LOG_TAG,"Error Nombre fichero: "+nombreFichero.getText().toString());
+                Log.e(LOG_TAG, "Error Nombre fichero: "+nombreFichero.getText().toString());
                 noInsertar = true;
             }else {
                 cancion.setNombreFichero(nombreFichero.getText().toString());

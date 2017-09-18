@@ -1,14 +1,10 @@
 package com.sacedonmg.cancionesingles;
 
 import android.content.Context;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.RatingBar;
-import android.widget.TextView;
 
-import com.android.volley.toolbox.NetworkImageView;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -22,7 +18,7 @@ import static com.sacedonmg.cancionesingles.UtilidadesCanciones.obtenerValorDifi
 /**
  * Created by Ana María Arrufat on 18/09/2017.
  */
-public class AdaptadorCancionesRemoto extends FirebaseRecyclerAdapter<Cancion,AdaptadorCancionesRemoto.ViewHolder> implements ChildEventListener {
+public class AdaptadorCancionesRemoto extends FirebaseRecyclerAdapter<Cancion, ViewHolder> implements ChildEventListener {
 
     protected LayoutInflater inflador;
     protected Context contexto;
@@ -32,21 +28,23 @@ public class AdaptadorCancionesRemoto extends FirebaseRecyclerAdapter<Cancion,Ad
         this.onClickListener = onClickListener;
     }
 
-    // Firebase
+    // Firebase variables
     protected DatabaseReference songsReference;
     private ArrayList<DataSnapshot> items;
     private ArrayList<String> keys;
 
     public AdaptadorCancionesRemoto(Context contexto, DatabaseReference songsReference) {
+        super(Cancion.class, R.layout.elemento_lista, ViewHolder.class, songsReference);
+        this.contexto = contexto;
 
-        super(Cancion.class, R.layout.elemento_lista, AdaptadorCancionesRemoto.ViewHolder.class, songsReference);
+        CancionesSingleton cancionesSingleton = CancionesSingleton.getInstance(contexto);
+        this.songsReference = cancionesSingleton.getCancionesReference();
+        this.songsReference.addChildEventListener(this);
 
         items = new ArrayList<DataSnapshot>();
         keys = new ArrayList<String>();
+
         inflador = (LayoutInflater) contexto.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        this.contexto = contexto;
-        this.songsReference = songsReference;
-        this.songsReference.addChildEventListener(this);
     }
 
     //Creamos el ViewHolder con la vista de un elemento sin personalizar
@@ -117,22 +115,6 @@ public class AdaptadorCancionesRemoto extends FirebaseRecyclerAdapter<Cancion,Ad
         if (index != -1) {
             items.set(index, dataSnapshot);
             notifyItemChanged(index, dataSnapshot.getValue(Cancion.class));
-        }
-    }
-
-    //Creamos nuestro viewHolder, con los tipos de elementos a modificar
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-        public TextView titulo;
-        public TextView autor;
-        public NetworkImageView portada;
-        public RatingBar dificultad;
-
-        public ViewHolder(View itemView) {
-            super(itemView);
-            titulo = (TextView) itemView.findViewById(R.id.nombreCancion);
-            autor = (TextView) itemView.findViewById(R.id.autorCancion);
-            portada = (NetworkImageView) itemView.findViewById(R.id.imagenPortada);
-            dificultad = (RatingBar) itemView.findViewById(R.id.ratDificultad);
         }
     }
 }

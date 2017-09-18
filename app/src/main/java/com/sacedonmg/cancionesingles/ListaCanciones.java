@@ -12,6 +12,8 @@ import android.view.ViewGroup;
 
 import java.io.File;
 
+import static com.sacedonmg.cancionesingles.TabbedActivity.ACTIVIDAD_EDICION;
+import static com.sacedonmg.cancionesingles.TabbedActivity.ACTIVIDAD_VISTA_CANCION_LOCAL;
 import static com.sacedonmg.cancionesingles.UtilidadesCanciones.copyFileFromAssets;
 import static com.sacedonmg.cancionesingles.UtilidadesCanciones.generarFicheros;
 import static com.sacedonmg.cancionesingles.UtilidadesCanciones.rutaCarpeta;
@@ -22,18 +24,14 @@ import static com.sacedonmg.cancionesingles.UtilidadesCanciones.validarLeerSD;
 public class ListaCanciones extends Fragment {
 
     public static Canciones vectorCanciones = CancionesVector.getInstance();
-    private static final String LOG_TAG = "ListaCanciones";
+    private static final String LOG_TAG = "CI::ListaCanciones";
 
     private RecyclerView recyclerView;
-    public AdaptadorCancionesLocal adaptador;
+    public static AdaptadorCancionesLocal adaptador;
     private RecyclerView.LayoutManager layoutManager;
     private View rootView;
 
-    private int ACTIVIDAD_VISTA_CANCION_LOCAL = 4567;
-    private int ACTIVIDAD_EDICION = 5678;
-
-    public ListaCanciones() {
-    }
+    public ListaCanciones() {}
 
     public static ListaCanciones newInstance() {
         ListaCanciones fragment = new ListaCanciones();
@@ -51,7 +49,6 @@ public class ListaCanciones extends Fragment {
         inicializaVista();
         return rootView;
     }
-
 
     /**
      * Inicializar datos de la Aplicación:
@@ -123,10 +120,10 @@ public class ListaCanciones extends Fragment {
      */
     public void inicializaVista() {
         recyclerView = (RecyclerView) rootView.findViewById(R.id.recycler_view);
-        adaptador = new AdaptadorCancionesLocal(getContext());
-        recyclerView.setAdapter((RecyclerView.Adapter) adaptador);
         layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
+        adaptador = new AdaptadorCancionesLocal(getContext());
+        recyclerView.setAdapter(adaptador);
 
         adaptador.setOnItemClickListener(new View.OnClickListener() {
             @Override

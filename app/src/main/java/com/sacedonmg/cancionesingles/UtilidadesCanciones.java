@@ -23,7 +23,7 @@ import static com.sacedonmg.cancionesingles.ListaCanciones.vectorCanciones;
  * Created by MGS on 09/07/2016.
  */
 public final class UtilidadesCanciones {
-    private static final String LOG_TAG = "UtilidadesCanciones";
+    private static final String LOG_TAG = "CI::UtilidadesCanciones";
 
 
     static final String EXTENSION_AUDIO = ".mp3";
@@ -111,9 +111,6 @@ public final class UtilidadesCanciones {
         return true;
     }
 
-
-
-
     /**
      * Copia los ficheros Demo de la carpeta Assets a la SD
      * @param context  el contexto de la aplicación
@@ -191,25 +188,23 @@ public final class UtilidadesCanciones {
     /**
      * Sincroinizar Lista Reproducción: Genera un objeto canción por cada xml de la SD y lo añade al vectorCanciones
      */
-    static void sincroListReproduccion(){
-        Log.e(LOG_TAG, "sincroListReproduccion");
+    static void sincroListReproduccion() {
         List<String> listaFicherosXML = getListOfFilesXML(rutaCarpeta);
         Cancion cancion;
         vectorCanciones = CancionesVector.getInstance();
-
         for(String nombreXML: listaFicherosXML){
             cancion = new Cancion ();
-
             String nombreFichero = nombreXML.substring(0, nombreXML.lastIndexOf("."));
             cancion.setNombreFichero(nombreFichero);
-            Log.d(LOG_TAG,nombreFichero);
             try {
                 cancion.leerXML(rutaCarpeta+nombreXML);
             }catch (Exception e){
                 Log.e(LOG_TAG, e.getMessage(), e);
             }
+
             cancion.toStringCancion();
             vectorCanciones.anyade(cancion);
+            Log.d(LOG_TAG, nombreFichero);
         }
 
     }

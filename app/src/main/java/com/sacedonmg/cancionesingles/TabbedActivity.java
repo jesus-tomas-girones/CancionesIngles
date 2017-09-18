@@ -13,7 +13,6 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -25,13 +24,20 @@ import static com.sacedonmg.cancionesingles.UtilidadesCanciones.sincroListReprod
 
 public class TabbedActivity extends AppCompatActivity {
 
+    public static int ACTIVIDAD_VISTA_CANCION_LOCAL = 4567;
+    public static int ACTIVIDAD_VISTA_CANCION_REMOTA = 4568;
+    public static int ACTIVIDAD_EDICION = 5678;
+
+    public static final int SECCION_DESCARGADAS = 0;
+    public static final int SECCION_REMOTAS = 1;
+
     private SectionsPagerAdapter mSectionsPagerAdapter;
-    private final int SECTIONS[] = {
+        private final int SECTIONS[] = {
             R.string.section_downloaded,
             R.string.section_availables,
     };
 
-    private ViewPager mViewPager;
+    private static ViewPager mViewPager;
     private Context context;
 
     @Override
@@ -54,6 +60,9 @@ public class TabbedActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 sincroListReproduccion();
+                ListaCanciones.adaptador.notifyDataSetChanged();
+                //ListaCanciones.adaptador.notifyItemRangeChanged(0, ListaCanciones.vectorCanciones.tamanyo());
+                //mViewPager.setCurrentItem(tab.getPosition());
             }
         });
 
@@ -94,7 +103,7 @@ public class TabbedActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int whichButton){
                         Intent i = new Intent (context, EdicionNuevaCancionActivity.class);
                         i.putExtra("editar",false);
-                        startActivityForResult(i, 5678);
+                        startActivityForResult(i, ACTIVIDAD_EDICION);
                     }
 
                 })
@@ -161,11 +170,10 @@ public class TabbedActivity extends AppCompatActivity {
 
         @Override
         public Fragment getItem(int position) {
-            Log.e("TabbedActivity", ""+position);
             switch (position) {
-                case 0:
+                case SECCION_DESCARGADAS:
                     return ListaCanciones.newInstance();
-                case 1:
+                case SECCION_REMOTAS:
                     return ListaCancionesRemoto.newInstance();
                 default:
                     return PlaceholderFragment.newInstance(position + 1);
@@ -190,5 +198,9 @@ public class TabbedActivity extends AppCompatActivity {
     @Override
     public void onBackPressed(){
         finish();
+    }
+
+    public static ViewPager getViewPager() {
+        return mViewPager;
     }
 }

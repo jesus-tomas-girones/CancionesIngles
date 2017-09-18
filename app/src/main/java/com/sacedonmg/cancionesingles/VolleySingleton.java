@@ -12,7 +12,7 @@ public class VolleySingleton {
     private static RequestQueue colaPeticiones;
     private static ImageLoader lectorImagenes;
     private static VolleySingleton ourInstance;
-    private String LOG_TAG = "VOLLEY_SINGLETON";
+    private String LOG_TAG = "CI::VOLLEY_SINGLETON";
 
     public static VolleySingleton getInstance(Context mContext) {
         if (ourInstance == null) {
@@ -30,12 +30,10 @@ public class VolleySingleton {
                     private final LruCache<String, Bitmap> cache = new LruCache<String, Bitmap>(10);
 
                     public void putBitmap(String url, Bitmap bitmap) {
-                        // Log.e(LOG_TAG, "putBitmap("+url+")");
                         cache.put(url, bitmap);
                     }
 
                     public Bitmap getBitmap(String url) {
-                        // Log.e(LOG_TAG, "getBitmap("+url+")");
                         return cache.get(url);
                     }
                 });

@@ -10,27 +10,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.io.File;
-
-import static com.sacedonmg.cancionesingles.UtilidadesCanciones.copyFileFromAssets;
-import static com.sacedonmg.cancionesingles.UtilidadesCanciones.generarFicheros;
-import static com.sacedonmg.cancionesingles.UtilidadesCanciones.rutaCarpeta;
-import static com.sacedonmg.cancionesingles.UtilidadesCanciones.sincroListReproduccion;
-import static com.sacedonmg.cancionesingles.UtilidadesCanciones.validarEscribirSD;
-import static com.sacedonmg.cancionesingles.UtilidadesCanciones.validarLeerSD;
+import static com.sacedonmg.cancionesingles.TabbedActivity.ACTIVIDAD_VISTA_CANCION_REMOTA;
+import static com.sacedonmg.cancionesingles.TabbedActivity.SECCION_DESCARGADAS;
 
 public class ListaCancionesRemoto extends Fragment {
 
-    public static Canciones vectorCanciones = CancionesVector.getInstance();
-    private static final String LOG_TAG = "ListaCanciones";
+    private static final String LOG_TAG = "CI::ListaCanciones";
 
     private RecyclerView recyclerView;
     public static AdaptadorCancionesRemoto adaptador;
     private RecyclerView.LayoutManager layoutManager;
     private View rootView;
-
-    private int ACTIVIDAD_VISTA_CANCION_REMOTA = 4568;
-    private int ACTIVIDAD_EDICION = 5678;
 
     public ListaCancionesRemoto() {
     }
@@ -51,46 +41,13 @@ public class ListaCancionesRemoto extends Fragment {
         return rootView;
     }
 
-
-    /**
-     * Crea la carpeta cancionesingles en la SD cuando se instala por primera vez la aplicación
-     * y guarda los ficheros Demo de Assets en la SD
-     *
-     * @param carpeta carpeta cancionesingles a crear en la SD
-     * @return
-     */
-    public boolean crearCarpeta(File carpeta) {
-        boolean resultado = false;
-
-
-        if (validarEscribirSD()) {
-            carpeta.mkdirs();
-            Log.v(LOG_TAG, "Carpeta cancionesingles creada en la SD");
-
-            if (carpeta.exists()) {
-                String[] ficherosDemo = generarFicheros();
-
-                for (String rutaFicheroDemo : ficherosDemo) {    ///Copiamos todos los ficherosDemo de Assets a la SD
-                    try {
-                        String rutaFicheroSD = rutaCarpeta + rutaFicheroDemo;
-                        copyFileFromAssets(getContext(), rutaFicheroDemo, rutaFicheroSD);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-                resultado = true;
-            } else {
-                Log.v(LOG_TAG, "ERROR: Carpeta cancionesingles no creada");
-                resultado = false;
-            }
-        }
-        return resultado;
-    }
-
     @Override
     public void onActivityResult(int requestCode, int resulCode, Intent data) {
-        if (requestCode == ACTIVIDAD_VISTA_CANCION_REMOTA || requestCode == ACTIVIDAD_EDICION) {
+        Log.d(LOG_TAG, "onActivityResult -> " + requestCode);
+        if (requestCode == ACTIVIDAD_VISTA_CANCION_REMOTA) {
             inicializaVista();
+            // sincroListReproduccion();
+            TabbedActivity.getViewPager().setCurrentItem(SECCION_DESCARGADAS);
         }
     }
 
