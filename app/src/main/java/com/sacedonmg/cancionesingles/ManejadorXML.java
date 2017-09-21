@@ -56,6 +56,12 @@ public class ManejadorXML extends DefaultHandler{
             cancionXML.setEtiquetado(Boolean.parseBoolean(tmpValue));
         }
 
+        if (nombreCualif.equalsIgnoreCase("local")){
+            Log.e("ManejadorXML", ""+Boolean.parseBoolean(tmpValue));
+
+            cancionXML.setLocal(Boolean.parseBoolean(tmpValue));
+        }
+
         if (nombreCualif.equalsIgnoreCase("tiempoIni")){
             frase.setTiempoIni(Integer.parseInt(tmpValue));
         }

@@ -12,8 +12,8 @@ import android.view.ViewGroup;
 
 import java.io.File;
 
-import static com.sacedonmg.cancionesingles.TabbedActivity.ACTIVIDAD_EDICION;
-import static com.sacedonmg.cancionesingles.TabbedActivity.ACTIVIDAD_VISTA_CANCION_LOCAL;
+import static com.sacedonmg.cancionesingles.MainActivity.ACTIVIDAD_EDICION;
+import static com.sacedonmg.cancionesingles.MainActivity.ACTIVIDAD_VISTA_CANCION_LOCAL;
 import static com.sacedonmg.cancionesingles.UtilidadesCanciones.copyFileFromAssets;
 import static com.sacedonmg.cancionesingles.UtilidadesCanciones.generarFicheros;
 import static com.sacedonmg.cancionesingles.UtilidadesCanciones.rutaCarpeta;
@@ -56,11 +56,10 @@ public class ListaCanciones extends Fragment {
      * Carga la lista de reproducción en función de los xml que encuentra en la carpeta SD "cancionesingles"
      */
     public void inicializaDatos() {
+        Log.d(LOG_TAG, "inicializaDatos");
         boolean sincronizar = false;
         if (validarLeerSD()) {
-
             File carpeta = new File(rutaCarpeta);
-
             if (!carpeta.exists()) {  //Es la primera vez que se instala la aplicación.
                 sincronizar = crearCarpeta(carpeta);
             } else { //ya existia la carpeta

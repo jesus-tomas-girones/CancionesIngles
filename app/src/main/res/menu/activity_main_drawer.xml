@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+
+        <group android:checkableBehavior="single">
+            <item android:id="@+id/nav_tabbed_activity"
+                android:icon="@drawable/ic_action_format_list_bulleted"
+                android:title="@string/tabbed_activity" />
+
+            <item
+                android:id="@+id/action_settings"
+                android:title="@string/action_settings"
+                android:icon="@drawable/ic_action_settings" />
+
+            <item android:id="@+id/acercaDe"
+                android:title="@string/acerca_de"
+                android:icon="@drawable/ic_action_info" />
+        </group>
+
+        <item android:title="Sesión">
+            <menu>
+                <item android:id="@+id/nav_signin"
+                    android:icon="@drawable/ic_action_login"
+                    android:title="@string/sign_in" />
+
+                <item android:id="@+id/nav_signout"
+                    android:icon="@drawable/ic_action_logout"
+                    android:title="@string/sign_out" />
+            </menu>
+        </item>
+    </group>
+</menu>

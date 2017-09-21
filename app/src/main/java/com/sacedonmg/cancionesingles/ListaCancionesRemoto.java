@@ -10,8 +10,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import static com.sacedonmg.cancionesingles.TabbedActivity.ACTIVIDAD_VISTA_CANCION_REMOTA;
-import static com.sacedonmg.cancionesingles.TabbedActivity.SECCION_DESCARGADAS;
+import static com.sacedonmg.cancionesingles.MainActivity.ACTIVIDAD_VISTA_CANCION_REMOTA;
+import static com.sacedonmg.cancionesingles.MainActivity.SECCION_DESCARGADAS;
 
 public class ListaCancionesRemoto extends Fragment {
 
@@ -57,8 +57,8 @@ public class ListaCancionesRemoto extends Fragment {
     public void inicializaVista() {
         recyclerView = (RecyclerView) rootView.findViewById(R.id.recycler_view);
 
-        CancionesSingleton cancionesSingleton = CancionesSingleton.getInstance(getContext());
-        adaptador = new AdaptadorCancionesRemoto(getContext(), cancionesSingleton.getCancionesReference());
+        FirebaseSingleton firebaseSingleton = FirebaseSingleton.getInstance();
+        adaptador = new AdaptadorCancionesRemoto(getContext(), firebaseSingleton.getCancionesReference());
 
         recyclerView.setAdapter(adaptador);
         layoutManager = new LinearLayoutManager(getContext());

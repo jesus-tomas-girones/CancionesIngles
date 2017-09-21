@@ -194,6 +194,7 @@ public final class UtilidadesCanciones {
         vectorCanciones = CancionesVector.getInstance();
         for(String nombreXML: listaFicherosXML){
             cancion = new Cancion ();
+            cancion.setLocal(true);
             String nombreFichero = nombreXML.substring(0, nombreXML.lastIndexOf("."));
             cancion.setNombreFichero(nombreFichero);
             try {

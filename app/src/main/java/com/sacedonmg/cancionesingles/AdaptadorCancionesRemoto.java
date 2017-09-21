@@ -37,8 +37,8 @@ public class AdaptadorCancionesRemoto extends FirebaseRecyclerAdapter<Cancion, V
         super(Cancion.class, R.layout.elemento_lista, ViewHolder.class, songsReference);
         this.contexto = contexto;
 
-        CancionesSingleton cancionesSingleton = CancionesSingleton.getInstance(contexto);
-        this.songsReference = cancionesSingleton.getCancionesReference();
+        FirebaseSingleton firebaseSingleton = FirebaseSingleton.getInstance();
+        this.songsReference = firebaseSingleton.getCancionesReference();
         this.songsReference.addChildEventListener(this);
 
         items = new ArrayList<DataSnapshot>();

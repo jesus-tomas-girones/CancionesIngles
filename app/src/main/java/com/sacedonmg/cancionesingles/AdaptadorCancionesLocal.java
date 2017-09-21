@@ -19,6 +19,7 @@ public class AdaptadorCancionesLocal extends RecyclerView.Adapter<ViewHolder> {
     protected Canciones canciones;
     protected LayoutInflater inflador;
     protected Context contexto;
+    private String LOG_TAG = "CI::AdaptadorLocal";
 
     protected View.OnClickListener onClickListener;
 

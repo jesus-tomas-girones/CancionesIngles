@@ -49,6 +49,7 @@ public class Cancion {
     private String txt_traducido;
     private String xml;
     private String nombreFichero;
+    private boolean local = false;
 
     private Boolean etiquetado;
     private List<Frase> letra;
@@ -61,7 +62,9 @@ public class Cancion {
         this.nombreFichero = nombreFichero;
         this.etiquetado = etiquetado;
         this.letra = letra;
+        this.local = true;
     }
+
     public Cancion (){
         this.titulo = "";
         this.autor = "";
@@ -183,6 +186,14 @@ public class Cancion {
         this.letra = letra;
     }
 
+    public boolean isLocal() {
+        return local;
+    }
+
+    public void setLocal(boolean local) {
+        this.local = local;
+    }
+
     /**
      * Leer un XML para generar un objeto canción
      * @param path ruta al fichero XML
@@ -205,6 +216,7 @@ public class Cancion {
         this.dificultad = manejadorXML.getCancionXML().getDificultad().ordinal();
         this.etiquetado =  manejadorXML.getCancionXML().getEtiquetado();
         this.letra = manejadorXML.getCancionXML().getLetra();
+        this.local = manejadorXML.getCancionXML().isLocal();
     }
 
     public void downloadXML() {
@@ -226,10 +238,6 @@ public class Cancion {
 
             setEtiquetado(manejadorXML.getCancionXML().getEtiquetado());
             setLetra(manejadorXML.getCancionXML().getLetra());
-            Log.e("************", manejadorXML.getCancionXML().toString());
-            Log.e("************", cancion.toString());
-            Log.e("************", "**************");
-
         } catch (IOException e){
             Log.e(LOG_TAG, e.toString());
             e.printStackTrace();
@@ -246,8 +254,6 @@ public class Cancion {
     public void escribirXML(){
         if (validarEscribirSD()){
             String path =rutaCarpeta+this.nombreFichero+EXTENSION_XML;
-
-
             try{
                 FileOutputStream xmlFile = new FileOutputStream(path,true);
                 XmlSerializer serializador = Xml.newSerializer();
@@ -269,6 +275,9 @@ public class Cancion {
                 serializador.startTag("","etiquetado");
                 serializador.text(String.valueOf(this.etiquetado));
                 serializador.endTag("","etiquetado");
+                serializador.startTag("","local");
+                serializador.text(String.valueOf(this.local));
+                serializador.endTag("","local");
                 serializador.startTag("","letra");
                 for(Frase frase:this.letra){
                     serializador.startTag("","frase");
@@ -361,17 +370,17 @@ public class Cancion {
     public String toString(){
         String mensaje =
                 "Cancion: " + super.toString() + "\n" +
-                "Título: " + this.titulo + "\n" +
-                "Autor: " + this.autor + "\n" +
-                "Dificultad: " + Dificultad.getByKey(this.dificultad).getTextoDificultad() + "\n" +
-                "Genero: " + Genero.getByKey(this.genero).getTextoGenero() + "\n" +
-                "Etiquetado: " + this.etiquetado.toString() + "\n"+
-                "Nombre Fichero: " + this.nombreFichero + "\n" +
-                "URL imagen: " + this.imagen + "\n" +
-                "URL audio: " + this.audio + "\n" +
-                "URL xml: " + this.xml + "\n" +
-                "URL texto original: " + this.txt_original + "\n" +
-                "URL texto traducido: " + this.txt_traducido + "\n";
+                        "Título: " + this.titulo + "\n" +
+                        "Autor: " + this.autor + "\n" +
+                        "Dificultad: " + Dificultad.getByKey(this.dificultad).getTextoDificultad() + "\n" +
+                        "Genero: " + Genero.getByKey(this.genero).getTextoGenero() + "\n" +
+                        "Etiquetado: " + this.etiquetado.toString() + "\n"+
+                        "Nombre Fichero: " + this.nombreFichero + "\n" +
+                        "URL imagen: " + this.imagen + "\n" +
+                        "URL audio: " + this.audio + "\n" +
+                        "URL xml: " + this.xml + "\n" +
+                        "URL texto original: " + this.txt_original + "\n" +
+                        "URL texto traducido: " + this.txt_traducido + "\n";
         return mensaje;
     }
 

@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
+import static com.sacedonmg.cancionesingles.MainActivity.ACTIVIDAD_VISTA_CANCION_LOCAL;
 import static com.sacedonmg.cancionesingles.UtilidadesCanciones.validarLeerSD;
 
 /**
@@ -75,8 +76,6 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
     private boolean versionLollipop;
 
 
-    private int ACTIVIDAD_VISTA_CANCION_LOCAL = 4567;
-    private int ACTIVIDAD_VISTA_CANCION_REMOTA = 4568;
     private int source;
     private Context mContext;
 
@@ -94,8 +93,13 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
     }
 
     @Override
-    public boolean onCreateOptionsMenu (Menu menu){
-        getMenuInflater().inflate(R.menu.menu_vista_cancion_remota, menu);
+    public boolean onCreateOptionsMenu (Menu menu) {
+        if (source == ACTIVIDAD_VISTA_CANCION_LOCAL) {
+            getMenuInflater().inflate(R.menu.menu_vista_cancion, menu);
+        } else {
+            getMenuInflater().inflate(R.menu.menu_vista_cancion_remota, menu);
+        }
+
         return true;
     }
 
@@ -171,9 +175,10 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
                 .setMessage(R.string.mensaje_borrar)
                 .setPositiveButton(R.string.confirmar, new DialogInterface.OnClickListener(){
                     public void onClick(DialogInterface dialog, int whichButton){
-                        ListaCanciones.vectorCanciones.borrar((int)id);
-                        Intent i = new Intent (VistaCancionActivity.this, ListaCanciones.class);
-                        startActivity(i);
+                        CancionesVector cancionesVector = CancionesVector.getInstance();
+                        cancionesVector.borrar(id);
+                        ListaCanciones.adaptador.notifyItemRemoved(id);
+                        finish();
                     }
 
                 })
@@ -247,7 +252,10 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
 
     private Cancion getCancionById(int id) {
         if (source == ACTIVIDAD_VISTA_CANCION_LOCAL) {
+            Log.d(LOG_TAG, "ACTIVIDAD_VISTA_CANCION_LOCAL");
             return CancionesVector.getInstance().elemento(id);
+        } else {
+            Log.d(LOG_TAG, "ACTIVIDAD_VISTA_CANCION_REMOTA");
         }
 
         return ListaCancionesRemoto.adaptador.getItem(id);
@@ -259,7 +267,6 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
                 lanzarAlertaEtiquetado();
             }
         }
-
 
         final Thread waitingThread = new Thread(new Runnable() {
             @Override
@@ -281,7 +288,7 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
      */
     public void ponInfoCancion(int id) {
         cancion = getCancionById(id);
-        Log.e(LOG_TAG, cancion.toString());
+        Log.d(LOG_TAG, cancion.toString());
 
         getEtiquetado(cancion);
         bindViews();
@@ -379,7 +386,6 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
      * @param view
      */
     public void sePulsaNormal(View view){
-
         descativarBotones();
         contador=0;
         pulsadoNormal=true;
@@ -412,8 +418,8 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
         descativarBotones();
         modoRepro = MODO_LECTURA_INICIAL;
         activaReproduccion();
-
     }
+
     /***
      * Se activa la repodrucción Modo Repetir
      * @param view
@@ -464,7 +470,6 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
             bMicro.setVisibility(View.INVISIBLE);
 
         }
-
     }
 
 
@@ -473,12 +478,9 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
      * modoNormal, modoLecturaInicial, modoRepetición
      */
     class MiThread extends Thread{
-
         int result;
         Frase frase;
         boolean repetir = true;
-
-
 
         @Override public void run(){
             while(contador <cancion.getLetra().size() && corriendo) {
@@ -493,7 +495,6 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
                         modoRepeticion();
                         break;
                 }
-
             }
 
             runOnUiThread(new Runnable() {
@@ -502,7 +503,6 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
                     inicializaVistas();
                     corriendo = false;
                     contador = 0;
-
                 }
             });
 

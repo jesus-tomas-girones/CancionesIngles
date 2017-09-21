@@ -73,6 +73,7 @@ public class EdicionNuevaCancionActivity extends AppCompatActivity {
     public void inicializaDatosCancion(){
 
         cancion = new Cancion();
+        cancion.setLocal(true);
 
         nombreVista = (TextView) findViewById(R.id.nombreVista);
 
@@ -120,7 +121,6 @@ public class EdicionNuevaCancionActivity extends AppCompatActivity {
      * Guarda los cambios realizados en la vista de edición/nuevo
      */
     public void guardarCambios(){
-
         boolean borrado = false;
         boolean noInsertar = false;
 
