@@ -4,15 +4,13 @@
     android:layout_width="match_parent"
     android:layout_height="?android:attr/listPreferredItemHeight">
 
-
     <com.android.volley.toolbox.NetworkImageView
         android:id="@+id/imagenPortada"
         android:layout_width="?android:attr/listPreferredItemHeight"
         android:layout_height="?android:attr/listPreferredItemHeight"
         android:layout_alignParentLeft="true"
         android:src="@drawable/cancion"
-        android:contentDescription="portada"
-         />
+        android:contentDescription="portada" />
 
     <TextView
         android:id ="@+id/autorCancion"

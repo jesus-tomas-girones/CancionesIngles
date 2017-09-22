@@ -49,7 +49,7 @@ public class Cancion {
     private String txt_traducido;
     private String xml;
     private String nombreFichero;
-    private boolean local = false;
+    private String user;
 
     private Boolean etiquetado;
     private List<Frase> letra;
@@ -62,7 +62,6 @@ public class Cancion {
         this.nombreFichero = nombreFichero;
         this.etiquetado = etiquetado;
         this.letra = letra;
-        this.local = true;
     }
 
     public Cancion (){
@@ -110,6 +109,14 @@ public class Cancion {
 
     public String getNombreFichero() {
         return nombreFichero;
+    }
+
+    public String getUser() {
+        return user;
+    }
+
+    public void setUser(String user) {
+        this.user = user;
     }
 
     /* Cuando se carga desde local */
@@ -186,14 +193,6 @@ public class Cancion {
         this.letra = letra;
     }
 
-    public boolean isLocal() {
-        return local;
-    }
-
-    public void setLocal(boolean local) {
-        this.local = local;
-    }
-
     /**
      * Leer un XML para generar un objeto canción
      * @param path ruta al fichero XML
@@ -216,7 +215,6 @@ public class Cancion {
         this.dificultad = manejadorXML.getCancionXML().getDificultad().ordinal();
         this.etiquetado =  manejadorXML.getCancionXML().getEtiquetado();
         this.letra = manejadorXML.getCancionXML().getLetra();
-        this.local = manejadorXML.getCancionXML().isLocal();
     }
 
     public void downloadXML() {
@@ -275,9 +273,6 @@ public class Cancion {
                 serializador.startTag("","etiquetado");
                 serializador.text(String.valueOf(this.etiquetado));
                 serializador.endTag("","etiquetado");
-                serializador.startTag("","local");
-                serializador.text(String.valueOf(this.local));
-                serializador.endTag("","local");
                 serializador.startTag("","letra");
                 for(Frase frase:this.letra){
                     serializador.startTag("","frase");
@@ -302,9 +297,7 @@ public class Cancion {
             }catch (Exception e){
                 Log.e(LOG_TAG, e.getMessage(), e);
             }
-
         }
-
     }
 
 

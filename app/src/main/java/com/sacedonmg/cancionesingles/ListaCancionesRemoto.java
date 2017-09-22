@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import static com.sacedonmg.cancionesingles.MainActivity.ACTIVIDAD_VISTA_CANCION_REMOTA;
+import static com.sacedonmg.cancionesingles.MainActivity.CANCION_DESCARGADA;
 import static com.sacedonmg.cancionesingles.MainActivity.SECCION_DESCARGADAS;
 
 public class ListaCancionesRemoto extends Fragment {
@@ -42,13 +43,14 @@ public class ListaCancionesRemoto extends Fragment {
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resulCode, Intent data) {
-        Log.d(LOG_TAG, "onActivityResult -> " + requestCode);
-        if (requestCode == ACTIVIDAD_VISTA_CANCION_REMOTA) {
-            inicializaVista();
-            // sincroListReproduccion();
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == ACTIVIDAD_VISTA_CANCION_REMOTA && resultCode == CANCION_DESCARGADA) {
+            Log.d(LOG_TAG, "onActivityResult -> ACTIVIDAD_VISTA_CANCION_REMOTA");
             TabbedActivity.getViewPager().setCurrentItem(SECCION_DESCARGADAS);
+            return;
         }
+
+        inicializaVista();
     }
 
     /***

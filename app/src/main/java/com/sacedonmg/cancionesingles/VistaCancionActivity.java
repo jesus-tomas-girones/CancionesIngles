@@ -3,12 +3,15 @@ package com.sacedonmg.cancionesingles;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnPreparedListener;
 import android.net.Uri;
@@ -33,13 +36,18 @@ import android.widget.MediaController;
 import android.widget.TextView;
 
 import com.android.volley.toolbox.NetworkImageView;
+import com.google.firebase.auth.FirebaseUser;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import static com.sacedonmg.cancionesingles.MainActivity.ACTIVIDAD_VISTA_CANCION_LOCAL;
+import static com.sacedonmg.cancionesingles.MainActivity.ACTIVIDAD_VISTA_CANCION_REMOTA;
+import static com.sacedonmg.cancionesingles.MainActivity.CANCION_DESCARGADA;
+import static com.sacedonmg.cancionesingles.UtilidadesCanciones.obtenerPortadaSD;
 import static com.sacedonmg.cancionesingles.UtilidadesCanciones.validarLeerSD;
 
 /**
@@ -84,12 +92,12 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
         super.onCreate(savedInstanceState);
         setContentView(R.layout.vista_cancion);
 
+        mContext = this;
         Bundle extras = getIntent().getExtras();
         id = extras.getLong("id", -1);
         source = extras.getInt("source", -1);
         tts = new TextToSpeech( this, this );
         ponInfoCancion((int) id);
-        mContext = this;
     }
 
     @Override
@@ -117,6 +125,10 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
                 return true;
             case R.id.accion_descargar:
                 descargarCancion();
+                return true;
+            case R.id.accion_subir:
+                subirCancionAFireBase();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -145,6 +157,7 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
                                     CancionesVector cancionesVector = CancionesVector.getInstance();
                                     cancionesVector.anyade(cancion);
                                     ListaCanciones.adaptador.notifyItemInserted(cancionesVector.tamanyo() - 1);
+                                    setResult(CANCION_DESCARGADA);
                                     finish();
                                 }
                             });
@@ -163,6 +176,41 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
             }
         });
         builder.show();
+    }
+
+    public ProgressDialog setUpProgressDialog(Cancion cancion, Context mContext) {
+        ProgressDialog progressDialog = new ProgressDialog(mContext);
+        progressDialog.setIndeterminate(true);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.setCanceledOnTouchOutside(false);
+        progressDialog.setTitle("Subiendo " + cancion.getTitulo());
+        return progressDialog;
+    }
+
+    public void subirCancionAFireBase() {
+
+        FirebaseSingleton firebaseSingleton = FirebaseSingleton.getInstance();
+        FirebaseUser currentUser = firebaseSingleton.getCurrentUser();
+        if (currentUser == null) {
+            new AlertDialog.Builder(this)
+                    .setTitle("Es necesario estar loggeado para compartir una canción")
+                    .setMessage("¿Desea identificarse ahora?")
+                    .setPositiveButton(R.string.etiquetar_cancion, new DialogInterface.OnClickListener(){
+                        public void onClick(DialogInterface dialog, int whichButton){
+                            Intent i = new Intent (VistaCancionActivity.this, MainActivity.class);
+                            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            Bundle options = new Bundle();
+                            options.putInt("SCREEN", R.id.nav_signin);
+                            startActivity(i, options);
+                        }
+
+                    })
+                    .setNegativeButton(R.string.cancelar, null)
+                    .show();
+        } else {
+            ProgressDialog progressDialog = setUpProgressDialog(cancion, mContext);
+            UtilidadesCanciones.subirCancionAFireBase(cancion, progressDialog, mContext);
+        }
     }
 
     /***
@@ -226,7 +274,7 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
      */
     @Override
     protected void onActivityResult(int requestCode, int resulCode, Intent data){
-        if(requestCode == 1234 || requestCode ==2345){
+        if(requestCode == 1234 || requestCode == 2345){
             ponInfoCancion((int)id);
             findViewById(R.id.vista_cancion).invalidate();
         }
@@ -266,6 +314,8 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
             if(!cancion.getEtiquetado()){
                 lanzarAlertaEtiquetado();
             }
+
+            return;
         }
 
         final Thread waitingThread = new Thread(new Runnable() {
@@ -289,11 +339,15 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
     public void ponInfoCancion(int id) {
         cancion = getCancionById(id);
         Log.d(LOG_TAG, cancion.toString());
-
         getEtiquetado(cancion);
         bindViews();
         titulo.setText(cancion.getTitulo());
-        portada.setImageUrl(cancion.getImagen(), VolleySingleton.getInstance(getApplicationContext()).getLectorImagenes());
+        if (source == ACTIVIDAD_VISTA_CANCION_LOCAL) {
+            Bitmap image = obtenerPortadaSD(mContext, cancion.getNombreFichero());
+            portada.setImageBitmap(image);
+        }
+
+        portada.setImageUrl(cancion.getImagen(), VolleySingleton.getInstance(mContext).getLectorImagenes());
 
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
             titulo.setVisibility(View.INVISIBLE);
@@ -309,20 +363,21 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
 
         mediaPlayer = new MediaPlayer();
         mediaPlayer.setOnPreparedListener(this);
-
         mediaController = new MediaController(this);
         mediaController.setVisibility(View.VISIBLE);
         try {
             Uri audio = Uri.parse(cancion.getAudio());
-            if (validarLeerSD()) {
+            if ((source == ACTIVIDAD_VISTA_CANCION_LOCAL && validarLeerSD()) || source == ACTIVIDAD_VISTA_CANCION_REMOTA) {
+                mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
                 mediaPlayer.setDataSource(this, audio);
                 mediaPlayer.prepare();
             }
 
+        } catch (FileNotFoundException e) {
+            Log.d(LOG_TAG, "FileNotFoundException " + cancion.getNombreFichero(), e);
         } catch (IOException e) {
             Log.d(LOG_TAG, "No se puede reproducir el audio: " + cancion.getNombreFichero(), e);
         }
-
         inicializaVistas();
     }
 
@@ -360,7 +415,6 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
             titulo.setVisibility(View.INVISIBLE);
             portada.setVisibility(View.INVISIBLE);
         }
-
 
         bNormal.setVisibility(View.VISIBLE);
         fauxiliar.setVisibility(View.INVISIBLE);

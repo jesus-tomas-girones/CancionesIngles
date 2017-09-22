@@ -12,7 +12,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import static com.sacedonmg.cancionesingles.MainActivity.SECCION_DESCARGADAS;
 import static com.sacedonmg.cancionesingles.MainActivity.SECCION_REMOTAS;
 
 public class TabbedActivity extends Fragment implements ViewPager.OnPageChangeListener{
@@ -30,7 +29,7 @@ public class TabbedActivity extends Fragment implements ViewPager.OnPageChangeLi
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         Log.d(LOG_TAG, "onCreateView");
         View rootView = inflater.inflate(R.layout.activity_tabbed, container, false);
-        mSectionsPagerAdapter = new SectionsPagerAdapter(getActivity().getSupportFragmentManager());
+        mSectionsPagerAdapter = new SectionsPagerAdapter(getChildFragmentManager());
 
         mViewPager = (ViewPager) rootView.findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
@@ -66,14 +65,17 @@ public class TabbedActivity extends Fragment implements ViewPager.OnPageChangeLi
 
         @Override
         public Fragment getItem(int position) {
+            Fragment fragment;
             switch (position) {
-                case SECCION_DESCARGADAS:
-                    return ListaCanciones.newInstance();
                 case SECCION_REMOTAS:
-                    return ListaCancionesRemoto.newInstance();
+                    fragment = ListaCancionesRemoto.newInstance();
+                    break;
                 default:
-                    return ListaCanciones.newInstance();
+                    fragment = ListaCanciones.newInstance();
+                    break;
             }
+
+            return fragment;
         }
 
         @Override

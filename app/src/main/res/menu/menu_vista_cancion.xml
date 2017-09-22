@@ -8,10 +8,10 @@
         android:orderInCategory="10"
         app:showAsAction="always|withText"/>
     <item
-        android:id="@+id/accion_descargar"
+        android:id="@+id/accion_subir"
         android:title="@string/upload"
         android:icon="@drawable/ic_action_upload"
-        android:orderInCategory="11"
+        android:orderInCategory="12"
         app:showAsAction="ifRoom|withText"/>
     <item
         android:id="@+id/accion_etiquetar"

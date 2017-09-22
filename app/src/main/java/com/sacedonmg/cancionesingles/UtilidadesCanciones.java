@@ -1,13 +1,25 @@
 package com.sacedonmg.cancionesingles;
 
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Environment;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.util.Log;
+import android.view.Gravity;
 import android.widget.Toast;
+
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.storage.OnPausedListener;
+import com.google.firebase.storage.OnProgressListener;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -38,8 +50,11 @@ public final class UtilidadesCanciones {
     static String nombreFicheroDemo3 = "billiejean";
 
     static String rutaCarpeta = Environment.getExternalStorageDirectory()+"/cancionesingles/";
-
     private static Handler manejador = new Handler();
+
+    // static boolean subiendoDatos = false;
+    static boolean[] subiendoDatos = new boolean[5];
+    static Boolean borrandoDatos = false;
 
 
     /**
@@ -50,7 +65,9 @@ public final class UtilidadesCanciones {
     static void mostrarMensaje (final Context context, final String mensaje){
         manejador.post(new Runnable(){
             public void run(){
-                Toast.makeText(context,mensaje,Toast.LENGTH_LONG).show();
+                Toast toast = Toast.makeText(context,mensaje,Toast.LENGTH_LONG);
+                toast.setGravity(Gravity.CENTER, 0, 0);
+                toast.show();
             }
         });
     }
@@ -194,12 +211,12 @@ public final class UtilidadesCanciones {
         vectorCanciones = CancionesVector.getInstance();
         for(String nombreXML: listaFicherosXML){
             cancion = new Cancion ();
-            cancion.setLocal(true);
+            // TODO: set user?
             String nombreFichero = nombreXML.substring(0, nombreXML.lastIndexOf("."));
             cancion.setNombreFichero(nombreFichero);
             try {
                 cancion.leerXML(rutaCarpeta+nombreXML);
-            }catch (Exception e){
+            }catch (Exception e) {
                 Log.e(LOG_TAG, e.getMessage(), e);
             }
 
@@ -273,4 +290,113 @@ public final class UtilidadesCanciones {
         return valor;
     }
 
+    private static void updateProgressDialog(ProgressDialog progressDialog, Context mContext) {
+        int count = 0;
+        for (int i = 0; i < subiendoDatos.length; i++) {
+            count = !subiendoDatos[i] ? count : count + 1 ;
+        }
+
+        progressDialog.setMessage("Quedan " + count + "/5 ficheros");
+        if (count == 0) {
+            progressDialog.dismiss();
+            mostrarMensaje(mContext, "¡Canción subida con éxito!");
+        }
+    }
+
+    private static void subirFichero(String localPath, String titulo, final ProgressDialog progressDialog, final int index, final Context mContext) {
+        Log.e(LOG_TAG, "subiendo fichero " + localPath);
+        FirebaseSingleton firebaseSingleton = FirebaseSingleton.getInstance();
+        StorageReference storageReference = firebaseSingleton.getStorageReference();
+
+        final String fileName = localPath.split("/cancionesingles/")[1];
+
+        Uri file = Uri.fromFile(new File(localPath));
+        StorageReference fileRef = storageReference.child(titulo + file.getLastPathSegment());
+        UploadTask uploadTask = fileRef.putFile(file);
+        uploadTask.addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                Log.e(LOG_TAG, "onFailure " + fileName, exception);
+                subiendoDatos[index] = false;
+                updateProgressDialog(progressDialog, mContext);
+            }
+        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                Log.e(LOG_TAG, "onSuccess " + fileName);
+                subiendoDatos[index] = false;
+                updateProgressDialog(progressDialog, mContext);
+                // taskSnapshot.getMetadata() contains file metadata such as size, content-type, and download URL.
+                // Uri downloadUrl = taskSnapshot.getDownloadUrl();
+            }
+        }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                subiendoDatos[index] = true;
+            }
+        }).addOnPausedListener(new OnPausedListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onPaused(UploadTask.TaskSnapshot taskSnapshot) {
+                Log.e(LOG_TAG, "onPaused " + fileName);
+                subiendoDatos[index] = true;
+            }
+        });
+    }
+
+    private static void subirFicheros(Cancion cancion, ProgressDialog progressDialog, Context mContext) {
+        String titulo = cancion.getTitulo().toLowerCase().replace(" ", "") + "/";
+
+        progressDialog.setMessage("Quedan 5/5 ficheros");
+
+        // Subir audio
+        String localPath = cancion.getAudio();
+        subirFichero(localPath, titulo, progressDialog, 0, mContext);
+
+        // Subir imagen
+        localPath = cancion.getImagen();
+        subirFichero(localPath, titulo, progressDialog, 1, mContext);
+
+        // Subir xml
+        localPath = cancion.getXml();
+        subirFichero(localPath, titulo, progressDialog, 2, mContext);
+
+        // Subir letra original
+        localPath = cancion.getTxt_original();
+        subirFichero(localPath, titulo, progressDialog, 3, mContext);
+
+        // Subir letra traducida
+        localPath = cancion.getTxt_traducido();
+        subirFichero(localPath, titulo, progressDialog, 4, mContext);
+    }
+
+
+    private static Task<Uri> checkIfFileExists(String titulo, String localPath) {
+        FirebaseSingleton firebaseSingleton = FirebaseSingleton.getInstance();
+        StorageReference storageReference = firebaseSingleton.getStorageReference();
+
+        Uri file = Uri.fromFile(new File(localPath));
+        StorageReference fileRef = storageReference.child(titulo + file.getLastPathSegment());
+        return fileRef.getDownloadUrl();
+    }
+
+    public static void subirCancionAFireBase (final Cancion cancion, final ProgressDialog progressDialog, final Context mContext) {
+        String titulo = cancion.getTitulo().toLowerCase().replace(" ", "") + "/";
+        String localPath = cancion.getAudio();
+
+        progressDialog.setMessage("Comprobando si ya existe en el servidor...");
+        progressDialog.show();
+
+        checkIfFileExists(titulo, localPath).addOnSuccessListener(new OnSuccessListener<Uri>() {
+            @Override
+            public void onSuccess(Uri uri) {
+                progressDialog.dismiss();
+                mostrarMensaje(mContext, "¡El archivo ya existe en el servidor!");
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                subirFicheros(cancion, progressDialog, mContext);
+            }
+        });
+    }
 }

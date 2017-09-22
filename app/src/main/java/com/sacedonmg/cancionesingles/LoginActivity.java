@@ -288,16 +288,16 @@ public class LoginActivity extends Fragment implements View.OnClickListener, Goo
         if (!email.isEmpty() && !password.isEmpty()) {
             showProgress();
             auth.signInWithEmailAndPassword(email, password).addOnCompleteListener(activity, new OnCompleteListener<AuthResult>() {
-                        @Override
-                        public void onComplete(@NonNull Task<AuthResult> task) {
-                            if (task.isSuccessful()) {
-                                doLogin();
-                            } else {
-                                hideProgress();
-                                showSnackbar(task.getException().getLocalizedMessage());
-                            }
-                        }
-                    });
+                @Override
+                public void onComplete(@NonNull Task<AuthResult> task) {
+                    if (task.isSuccessful()) {
+                        doLogin();
+                    } else {
+                        hideProgress();
+                        showSnackbar(task.getException().getLocalizedMessage());
+                    }
+                }
+            });
         } else {
             wrapperEmail.setError(getString(R.string.error_empty));
         }
@@ -308,16 +308,16 @@ public class LoginActivity extends Fragment implements View.OnClickListener, Goo
         if (!email.isEmpty() && !password.isEmpty()) {
             showProgress();
             auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(activity, new OnCompleteListener<AuthResult>() {
-                        @Override
-                        public void onComplete(@NonNull Task<AuthResult> task) {
-                            if (task.isSuccessful()) {
-                                doLogin();
-                            } else {
-                                hideProgress();
-                                showSnackbar(task.getException().getLocalizedMessage());
-                            }
-                        }
-                    });
+                @Override
+                public void onComplete(@NonNull Task<AuthResult> task) {
+                    if (task.isSuccessful()) {
+                        doLogin();
+                    } else {
+                        hideProgress();
+                        showSnackbar(task.getException().getLocalizedMessage());
+                    }
+                }
+            });
         } else {
             wrapperEmail.setError(getString(R.string.error_empty));
         }

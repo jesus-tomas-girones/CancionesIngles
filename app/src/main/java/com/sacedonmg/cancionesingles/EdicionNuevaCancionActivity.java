@@ -11,6 +11,8 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.google.firebase.auth.FirebaseUser;
+
 /**
  * Created by MGS on 21/07/2016.
  */
@@ -71,9 +73,11 @@ public class EdicionNuevaCancionActivity extends AppCompatActivity {
     }
 
     public void inicializaDatosCancion(){
-
         cancion = new Cancion();
-        cancion.setLocal(true);
+
+        FirebaseUser currentUser = FirebaseSingleton.getInstance().getCurrentUser();
+        String userUid = currentUser != null ? currentUser.getUid() : "local";
+        cancion.setUser(userUid);
 
         nombreVista = (TextView) findViewById(R.id.nombreVista);
 

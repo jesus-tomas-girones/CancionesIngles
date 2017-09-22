@@ -98,6 +98,36 @@
             android:layout_below="@id/t_nombreFichero"
             android:hint="@string/nombreFichero_hint" >
         </EditText>
+        <TextView
+            android:id="@+id/t_textoOriginal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/nombreFichero"
+            android:text="@string/nombreFichero"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+        <EditText
+            android:id="@+id/textoOriginal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/t_nombreFichero"
+            android:ems="5"
+            android:inputType="textMultiLine" >
+        </EditText>
+        <TextView
+            android:id="@+id/t_textoTraducido"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/textoOriginal"
+            android:text="@string/nombreFichero"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+        <EditText
+            android:id="@+id/textoTraducido"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/t_textoTraducido"
+            android:ems="5"
+            android:inputType="textMultiLine" >
+        </EditText>
 
     </RelativeLayout>
 </android.support.v4.widget.NestedScrollView>

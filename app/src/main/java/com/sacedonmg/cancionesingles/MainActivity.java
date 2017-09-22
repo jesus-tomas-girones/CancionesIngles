@@ -14,6 +14,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -28,7 +29,6 @@ import com.android.volley.toolbox.NetworkImageView;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 import static com.sacedonmg.cancionesingles.UtilidadesCanciones.sincroListReproduccion;
@@ -36,9 +36,13 @@ import static com.sacedonmg.cancionesingles.UtilidadesCanciones.sincroListReprod
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
     private String LOG_TAG = "CI::MainActivity";
 
+    // REQUEST CODES
     public static int ACTIVIDAD_VISTA_CANCION_LOCAL = 4567;
     public static int ACTIVIDAD_VISTA_CANCION_REMOTA = 4568;
     public static int ACTIVIDAD_EDICION = 5678;
+
+    // RESULT CODES
+    public static int CANCION_DESCARGADA = 1001;
 
     public static final int SECCION_DESCARGADAS = 0;
     public static final int SECCION_REMOTAS = 1;
@@ -72,8 +76,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                sincroListReproduccion();
-                ListaCanciones.adaptador.notifyDataSetChanged();
+                ViewPager viewPager = TabbedActivity.getViewPager();
+                if (viewPager != null && viewPager.getCurrentItem() == SECCION_DESCARGADAS) {
+                    sincroListReproduccion();
+                    ListaCanciones.adaptador.notifyDataSetChanged();
+                }
             }
         });
 
@@ -106,8 +113,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         TextView txtName = (TextView) headerLayout.findViewById(R.id.txtName);
         NetworkImageView fotoUsuario = (NetworkImageView) headerLayout.findViewById(R.id.imageView);
 
-        FirebaseAuth auth = FirebaseSingleton.getInstance().getAuth();
-        FirebaseUser currentUser = auth.getCurrentUser();
+        FirebaseUser currentUser = FirebaseSingleton.getInstance().getCurrentUser();
         if (currentUser == null) {
             navigationView.getMenu().findItem(R.id.nav_signout).setVisible(false);
             navigationView.getMenu().findItem(R.id.nav_signin).setVisible(true);
@@ -134,7 +140,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
-        this.menu = menu;
         return true;
     }
 
@@ -176,7 +181,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-         if(id == R.id.nuevo){
+        ViewPager viewPager = TabbedActivity.getViewPager();
+        if (viewPager == null) {
+            return false;
+        }
+
+         if(id == R.id.nuevo && viewPager.getCurrentItem() == SECCION_DESCARGADAS){
             lanzarNuevo();
             return true;
         }
@@ -207,21 +217,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.nav_signin:
                 Log.d(LOG_TAG, "R.id.nav_signin");
                 floatingActionButton.setVisibility(View.GONE);
-                // menu.findItem(R.id.nuevo).setVisible(false); TODO
                 fragment = new LoginActivity();
                 break;
             case R.id.nav_tabbed_activity:
                 Log.d(LOG_TAG, "nav_tabbed_activity");
                 floatingActionButton.setVisibility(View.VISIBLE);
-                // menu.findItem(R.id.nuevo).setVisible(true); TODO
                 fragment = new TabbedActivity();
                 break;
         }
 
         if (fragment != null) {
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ft.replace(R.id.content_frame, fragment);
-            ft.commit();
+            ft.replace(R.id.content_frame, fragment).commit();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -234,18 +241,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Log.d(LOG_TAG, "onNavigationItemSelected");
 
         int id = item.getItemId();
-        if (id == R.id.nav_signin) {
-            displaySelectedScreen(R.id.nav_signin);
+        if (id == R.id.nav_signin || id == R.id.nav_tabbed_activity) {
+            displaySelectedScreen(id);
         } else if (id == R.id.nav_signout) {
             logOut();
         } else if (id == R.id.action_settings) {
             lanzarPreferencias();
             return true;
-        } else if (id == R.id.acercaDe){
+        } else if (id == R.id.acercaDe) {
             lanzarAcercaDe();
             return true;
-        } else {
-            displaySelectedScreen(id);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById( R.id.drawer_layout);
