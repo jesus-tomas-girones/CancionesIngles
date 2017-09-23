@@ -22,7 +22,6 @@ public class Frase {
         this.tiempoFin = 0;
         this.fraseOriginal = "";
         this.fraseTraducida = "";
-
     }
 
 

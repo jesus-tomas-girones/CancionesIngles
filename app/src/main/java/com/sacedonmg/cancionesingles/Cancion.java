@@ -261,6 +261,9 @@ public class Cancion {
                 serializador.startTag("","titulo");
                 serializador.text(this.titulo);
                 serializador.endTag("","titulo");
+                serializador.startTag("","user");
+                serializador.text(this.user);
+                serializador.endTag("","user");
                 serializador.startTag("","autor");
                 serializador.text(this.autor);
                 serializador.endTag("","autor");
@@ -299,7 +302,6 @@ public class Cancion {
             }
         }
     }
-
 
     /***
      * Lee los txt original y traducido generando el objeto letra.
@@ -363,17 +365,19 @@ public class Cancion {
     public String toString(){
         String mensaje =
                 "Cancion: " + super.toString() + "\n" +
-                        "Título: " + this.titulo + "\n" +
-                        "Autor: " + this.autor + "\n" +
-                        "Dificultad: " + Dificultad.getByKey(this.dificultad).getTextoDificultad() + "\n" +
-                        "Genero: " + Genero.getByKey(this.genero).getTextoGenero() + "\n" +
-                        "Etiquetado: " + this.etiquetado.toString() + "\n"+
-                        "Nombre Fichero: " + this.nombreFichero + "\n" +
-                        "URL imagen: " + this.imagen + "\n" +
-                        "URL audio: " + this.audio + "\n" +
-                        "URL xml: " + this.xml + "\n" +
-                        "URL texto original: " + this.txt_original + "\n" +
-                        "URL texto traducido: " + this.txt_traducido + "\n";
+                "Título: " + this.titulo + "\n" +
+                "Autor: " + this.autor + "\n" +
+                "Dificultad: " + Dificultad.getByKey(this.dificultad).getTextoDificultad() + "\n" +
+                "Genero: " + Genero.getByKey(this.genero).getTextoGenero() + "\n" +
+                "Etiquetado: " + this.etiquetado.toString() + "\n"+
+                "Nombre Fichero: " + this.nombreFichero + "\n" +
+                "URL imagen: " + this.imagen + "\n" +
+                "URL audio: " + this.audio + "\n" +
+                "URL xml: " + this.xml + "\n" +
+                "URL texto original: " + this.txt_original + "\n" +
+                "URL texto traducido: " + this.txt_traducido + "\n" +
+                "Usuario: " + this.user + "\n";
+
         return mensaje;
     }
 

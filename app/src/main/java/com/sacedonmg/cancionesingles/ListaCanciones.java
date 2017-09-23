@@ -109,6 +109,7 @@ public class ListaCanciones extends Fragment {
 
     @Override
     public void onActivityResult(int requestCode, int resulCode, Intent data) {
+        Log.d(LOG_TAG, "onActivityResult");
         if (requestCode == ACTIVIDAD_VISTA_CANCION_LOCAL || requestCode == ACTIVIDAD_EDICION) {
             inicializaVista();
         }

@@ -51,11 +51,11 @@ public class ManejadorXML extends DefaultHandler{
             cancionXML.setDificultad(Integer.parseInt(tmpValue));
         }
         if (nombreCualif.equalsIgnoreCase("etiquetado")){
-            Log.e("ManejadorXML", ""+Boolean.parseBoolean(tmpValue));
-
             cancionXML.setEtiquetado(Boolean.parseBoolean(tmpValue));
         }
-
+        if (nombreCualif.equalsIgnoreCase("user")){
+            cancionXML.setUser(tmpValue);
+        }
         if (nombreCualif.equalsIgnoreCase("tiempoIni")){
             frase.setTiempoIni(Integer.parseInt(tmpValue));
         }

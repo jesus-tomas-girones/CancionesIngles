@@ -1,5 +1,7 @@
 package com.sacedonmg.cancionesingles;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -12,6 +14,9 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseUser;
+
+import static com.sacedonmg.cancionesingles.MainActivity.CREAR_OK;
+import static com.sacedonmg.cancionesingles.MainActivity.EDITAR_OK;
 
 /**
  * Created by MGS on 21/07/2016.
@@ -61,6 +66,7 @@ public class EdicionNuevaCancionActivity extends AppCompatActivity {
         switch (item.getItemId()){
             case R.id.accion_guardar:
                 guardarCambios();
+                setResult(Activity.RESULT_OK);
                 finish();
                 return true;
 
@@ -124,8 +130,7 @@ public class EdicionNuevaCancionActivity extends AppCompatActivity {
     /**
      * Guarda los cambios realizados en la vista de edición/nuevo
      */
-    public void guardarCambios(){
-        boolean borrado = false;
+    public void guardarCambios() {
         boolean noInsertar = false;
 
         cancion.setTitulo(titulo.getText().toString());
@@ -133,29 +138,36 @@ public class EdicionNuevaCancionActivity extends AppCompatActivity {
         cancion.setGenero(genero.getSelectedItemPosition());
         cancion.setDificultad(dificultad.getSelectedItemPosition());
 
-        if(!editarCancion){
+        if (!editarCancion){
             cancion.setEtiquetado(false);
 
-            if(nombreFichero.getText().toString().isEmpty()) {
+            if (nombreFichero.getText().toString().isEmpty()) {
                 Log.e(LOG_TAG, "Error Nombre fichero: "+nombreFichero.getText().toString());
                 noInsertar = true;
-            }else {
+            } else {
                 cancion.setNombreFichero(nombreFichero.getText().toString());
                 cancion.leerTXT();
-
-            }
-        }
-        if(!noInsertar) {
-
-            borrado = cancion.borrarXML();
-
-            if (!borrado && editarCancion) {
-                Log.e(LOG_TAG, "Error borrando fichero: Imposible guarda cambios en el xml");
-            } else {
-                cancion.escribirXML();
             }
         }
 
+        if (noInsertar) {
+            return;
+        }
+
+        if (!cancion.borrarXML() && editarCancion) {
+            Log.e(LOG_TAG, "Error borrando fichero: Imposible guarda cambios en el xml");
+            return;
+        }
+
+        cancion.escribirXML();
+        Intent data = new Intent();
+
+        if (editarCancion) {
+            data.putExtra("posicion", id);
+            setResult(EDITAR_OK, data);
+        } else {
+            setResult(CREAR_OK, data);
+        }
     }
 
 }

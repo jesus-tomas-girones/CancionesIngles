@@ -21,9 +21,9 @@ C) Permitir subir una canción
 * C.3 - Si todo OK, añadir nuevo nodo en bases de datos
 
 D)   Autentificar el usuario con Firebase
-  D.1 - Cuando el usuario va a añadir una canción pedir que se identifique con FireBase
+* D.1 - Cuando el usuario va a añadir una canción pedir que se identifique con FireBase
 * D.2 -	Añadir usuario y correo a listado de usuarios como en el curso.
-- D.3 -	Añadir el campo usuario a la base de datos de canciones
+* D.3 -	Añadir el campo usuario a la base de datos de canciones
 * D.4 -	¿? Añadir NavigationDrawer y ponerle la foto del usuario (como en el curso)
 
 E)   Edición de canciones en el servidor
@@ -36,5 +36,5 @@ Por determinar otras mejoras en la parte del proyecto ya desarrollado
  	Mejoras del IU
  	Corrección de errores de reproducción
  	Mejoras en la edición y etiquetado de canciones
- 	Nuevos modos de reproducción, ejercicios de completar palabras, dictado, …
+*	Nuevos modos de reproducción, ejercicios de completar palabras, dictado, … -> Rellenar palabras
 

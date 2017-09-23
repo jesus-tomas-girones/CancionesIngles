@@ -31,6 +31,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseUser;
 
+import static com.sacedonmg.cancionesingles.UtilidadesCanciones.mostrarMensaje;
 import static com.sacedonmg.cancionesingles.UtilidadesCanciones.sincroListReproduccion;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
@@ -43,6 +44,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     // RESULT CODES
     public static int CANCION_DESCARGADA = 1001;
+    public static int EDITAR_OK = 1002;
+    public static int BORRAR_OK = 1002;
+    public static int CREAR_OK = 1002;
 
     public static final int SECCION_DESCARGADAS = 0;
     public static final int SECCION_REMOTAS = 1;
@@ -196,7 +200,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
     public void logOut() {
-        Log.d(LOG_TAG, "LOG-OUT");
+        Log.d(LOG_TAG, "LOG OUT");
         AuthUI.getInstance().signOut(this)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
@@ -207,6 +211,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         pref.edit().remove("name").commit();
                         setUserInfo();
                         displaySelectedScreen(R.id.nav_tabbed_activity);
+                        mostrarMensaje(MainActivity.this, "¡Hasta pronto!");
                     }
                 });
     }
@@ -256,6 +261,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         DrawerLayout drawer = (DrawerLayout) findViewById( R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d(LOG_TAG, "onActivityResult");
+        if (requestCode == ACTIVIDAD_EDICION) {
+            int posicion = data.getIntExtra("posicion", -1);
+            if (resultCode == CREAR_OK) ListaCanciones.adaptador.notifyItemInserted(CancionesVector.getInstance().tamanyo() - 1);
+            else if (resultCode == EDITAR_OK && posicion >= 0) ListaCanciones.adaptador.notifyItemChanged(posicion);
+            else if (resultCode == BORRAR_OK && posicion >= 0) ListaCanciones.adaptador.notifyItemRemoved(posicion);
+        }
     }
 
     @Override

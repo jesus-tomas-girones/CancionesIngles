@@ -31,22 +31,28 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.MediaController;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.toolbox.NetworkImageView;
 import com.google.firebase.auth.FirebaseUser;
+import com.twitter.Regex;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import static com.sacedonmg.cancionesingles.MainActivity.ACTIVIDAD_VISTA_CANCION_LOCAL;
 import static com.sacedonmg.cancionesingles.MainActivity.ACTIVIDAD_VISTA_CANCION_REMOTA;
 import static com.sacedonmg.cancionesingles.MainActivity.CANCION_DESCARGADA;
+import static com.sacedonmg.cancionesingles.UtilidadesCanciones.mostrarMensaje;
 import static com.sacedonmg.cancionesingles.UtilidadesCanciones.obtenerPortadaSD;
 import static com.sacedonmg.cancionesingles.UtilidadesCanciones.validarLeerSD;
 
@@ -58,6 +64,7 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
     private static final String MODO_NORMAL = "0";
     private static final String MODO_LECTURA_INICIAL = "1";
     private static final String MODO_REPETICION = "2";
+    private static final String MODO_RELLENAR = "3";
     private static final String SUBTITULOS_AMBOS = "0";
     private static final String SUBTITULOS_ORIGINAL = "1";
     private static final String SUBTITULOS_TRADUCIDO = "2";
@@ -65,23 +72,20 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
     private Cancion cancion;
     private MediaPlayer mediaPlayer;
     private MediaController mediaController;
-    private TextView titulo;
+    private TextView titulo, tv_palabraOculta, fOriginal, fTraducida, fauxiliar;
+    private EditText et_palabraOculta;
     private NetworkImageView portada;
-    private TextView fOriginal;
-    private TextView fTraducida;
-    private Button bNormal, bLectura, bRepetir;
+    private Button bNormal, bLectura, bRepetir, bRellenar, bComprobar, bSeguir, bDescubrir, bRepetirFrase;
     private ImageButton bMicro;
     private TextToSpeech tts; //Motor de voz
     private MiThread miThread;
-    private boolean corriendo = false;
     private String modoRepro = MODO_NORMAL;
     private String subtitulos = SUBTITULOS_AMBOS;
+    private boolean corriendo = false;
     private boolean pulsadoMicro = false;
     private boolean pulsadoNormal = false;
-    private TextView fauxiliar;
     private int contador = 0;
-    private boolean estaHablando;
-    private boolean versionLollipop;
+    private boolean estaHablando, versionLollipop;
 
 
     private int source;
@@ -106,6 +110,10 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
             getMenuInflater().inflate(R.menu.menu_vista_cancion, menu);
         } else {
             getMenuInflater().inflate(R.menu.menu_vista_cancion_remota, menu);
+            FirebaseUser currentUser = FirebaseSingleton.getInstance().getCurrentUser();
+            if (currentUser == null || cancion.getUser().compareTo(currentUser.getUid()) != 0) {
+                menu.findItem(R.id.accion_borrar).setVisible(false);
+            }
         }
 
         return true;
@@ -218,6 +226,15 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
      * @param id
      */
     public void borrarCancion(final int id){
+        if (source == ACTIVIDAD_VISTA_CANCION_REMOTA) {
+            FirebaseUser currentUser = FirebaseSingleton.getInstance().getCurrentUser();
+            if (currentUser == null || cancion.getUser() == null || cancion.getUser().compareTo(currentUser.getUid()) != 0) {
+                mostrarMensaje(this, "No tiene permisos para borrar esta canción");
+                return;
+            }
+        }
+
+
         new AlertDialog.Builder(this)
                 .setTitle(R.string.titulo_borrar)
                 .setMessage(R.string.mensaje_borrar)
@@ -292,10 +309,17 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
         fOriginal = (TextView) findViewById(R.id.f_original);
         fTraducida = (TextView) findViewById(R.id.f_traducida);
         fauxiliar = (TextView) findViewById(R.id.f_aux);
+        tv_palabraOculta = (TextView) findViewById(R.id.tv_palabraOculta);
+        et_palabraOculta = (EditText) findViewById(R.id.et_palabraOculta);
         bMicro = (ImageButton)findViewById(R.id.bMicro);
         bNormal = (Button)findViewById(R.id.bnormal);
         bLectura = (Button)findViewById(R.id.blectura);
         bRepetir = (Button)findViewById(R.id.brepetir);
+        bRellenar = (Button)findViewById(R.id.brellenar);
+        bComprobar = (Button)findViewById(R.id.bcomprobar);
+        bSeguir = (Button)findViewById(R.id.bseguir);
+        bDescubrir = (Button)findViewById(R.id.bdescubrir);
+        bRepetirFrase = (Button)findViewById(R.id.brepetirfrase);
     }
 
     private Cancion getCancionById(int id) {
@@ -366,11 +390,14 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
         mediaController = new MediaController(this);
         mediaController.setVisibility(View.VISIBLE);
         try {
-            Uri audio = Uri.parse(cancion.getAudio());
-            if ((source == ACTIVIDAD_VISTA_CANCION_LOCAL && validarLeerSD()) || source == ACTIVIDAD_VISTA_CANCION_REMOTA) {
-                mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-                mediaPlayer.setDataSource(this, audio);
-                mediaPlayer.prepare();
+
+            if (cancion.getAudio().compareTo("") != 0) {
+                Uri audio = Uri.parse(cancion.getAudio());
+                if ((source == ACTIVIDAD_VISTA_CANCION_LOCAL && validarLeerSD()) || source == ACTIVIDAD_VISTA_CANCION_REMOTA) {
+                    mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                    mediaPlayer.setDataSource(this, audio);
+                    mediaPlayer.prepare();
+                }
             }
 
         } catch (FileNotFoundException e) {
@@ -378,6 +405,7 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
         } catch (IOException e) {
             Log.d(LOG_TAG, "No se puede reproducir el audio: " + cancion.getNombreFichero(), e);
         }
+
         inicializaVistas();
     }
 
@@ -422,15 +450,24 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
 
         if (!cancion.getEtiquetado()) {
             bRepetir.setVisibility(View.INVISIBLE);
+            bRellenar.setVisibility(View.INVISIBLE);
             bLectura.setVisibility(View.INVISIBLE);
             fOriginal.setVisibility(View.INVISIBLE);
             fTraducida.setVisibility(View.INVISIBLE);
         } else {
             bRepetir.setVisibility(View.VISIBLE);
+            bRellenar.setVisibility(View.VISIBLE);
             bLectura.setVisibility(View.VISIBLE);
             fOriginal.setVisibility(View.VISIBLE);
             fTraducida.setVisibility(View.VISIBLE);
         }
+
+        et_palabraOculta.setVisibility(View.GONE);
+        tv_palabraOculta.setVisibility(View.GONE);
+        bComprobar.setVisibility(View.GONE);
+        bSeguir.setVisibility(View.GONE);
+        bDescubrir.setVisibility(View.GONE);
+        bRepetirFrase.setVisibility(View.GONE);
 
         pulsadoNormal = false;
     }
@@ -458,8 +495,9 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
                 fOriginal.setVisibility(View.INVISIBLE);
                 break;
         }
-        mediaPlayer.start();
+
         activaReproduccion();
+        mediaPlayer.start();
     }
 
     /***
@@ -467,8 +505,8 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
      * @param view
      */
     public void sePulsaLectura(View view){
-        pulsadoNormal=false;
-        contador=0;
+        pulsadoNormal = false;
+        contador = 0;
         descativarBotones();
         modoRepro = MODO_LECTURA_INICIAL;
         activaReproduccion();
@@ -479,14 +517,36 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
      * @param view
      */
     public void sePulsaRepetir(View view){
-        pulsadoNormal=false;
-        contador=0;
+        pulsadoNormal = false;
+        contador = 0;
         descativarBotones();
         modoRepro = MODO_REPETICION;
         titulo.setVisibility(View.INVISIBLE);
         portada.setVisibility(View.INVISIBLE);
         fOriginal.setVisibility(View.INVISIBLE);
         fauxiliar.setVisibility(View.VISIBLE);
+        activaReproduccion();
+    }
+
+    /***
+     * Se activa la repodrucción Modo Repetir
+     * @param view
+     */
+    public void sePulsaRellenar(View view){
+        descativarBotones();
+        contador = 0;
+        pulsadoNormal = false;
+        modoRepro = MODO_RELLENAR;
+        titulo.setVisibility(View.INVISIBLE);
+        portada.setVisibility(View.GONE);
+        fOriginal.setVisibility(View.VISIBLE);
+        fTraducida.setVisibility(View.GONE);
+        et_palabraOculta.setVisibility(View.VISIBLE);
+        tv_palabraOculta.setVisibility(View.VISIBLE);
+        bComprobar.setVisibility(View.VISIBLE);
+        bSeguir.setVisibility(View.VISIBLE);
+        bDescubrir.setVisibility(View.VISIBLE);
+        bRepetirFrase.setVisibility(View.VISIBLE);
         activaReproduccion();
     }
 
@@ -505,6 +565,7 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
     public void descativarBotones(){
         bNormal.setVisibility(View.INVISIBLE);
         bRepetir.setVisibility(View.INVISIBLE);
+        bRellenar.setVisibility(View.INVISIBLE);
         bLectura.setVisibility(View.INVISIBLE);
     }
 
@@ -536,7 +597,80 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
         Frase frase;
         boolean repetir = true;
 
-        @Override public void run(){
+        // Modo rellenar
+        private String[] palabrasOcultas;
+        private int fraseActual;
+        private String[] frasesARellenar;
+        private boolean goOnClicked;
+        private boolean repetirFrase;
+
+        private void onPreExecuteModoRellenar() {
+
+            frasesARellenar = new String[cancion.getLetra().size()];
+            palabrasOcultas = new String[cancion.getLetra().size()];
+
+            for (int i = 0; i < frasesARellenar.length; i++) {
+                String fraseOriginal = cancion.getLetra().get(i).getFraseOriginal();
+                String[] palabras = fraseOriginal.split(" ");
+
+                int numRandom =  (int )(Math.random() * palabras.length);
+                palabrasOcultas[i] = palabras[numRandom].trim().toLowerCase();
+                frasesARellenar[i] = fraseOriginal.replaceAll(palabras[numRandom], " ........... ");
+            }
+
+            bComprobar.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    final String[] caracteresEspeciales = {"?", "¿", ",", ";", ".", ":", "!", "¡", "\""};
+                    String palabraOculta = palabrasOcultas[fraseActual];
+                    String input = et_palabraOculta.getText().toString().toLowerCase().trim();
+
+                    for (String c : caracteresEspeciales) {
+                        palabraOculta = palabraOculta.replace(c, "");
+                    }
+
+                    if (input.compareTo(palabraOculta) == 0) {
+                        Log.d(LOG_TAG, "PALABRA CORRECTA");
+                        mostrarMensaje(VistaCancionActivity.this, "¡Palabra correcta!");
+                        bSeguir.setEnabled(true); bSeguir.getBackground().setAlpha(255);
+                        fOriginal.setText(cancion.getLetra().get(fraseActual).getFraseOriginal());
+                    } else {
+                        mostrarMensaje(VistaCancionActivity.this, "¡No es correcto!");
+                    }
+                }
+            });
+
+            View.OnClickListener onClickListener = new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    switch (view.getId()) {
+                        case R.id.bseguir:
+                            goOnClicked = true;
+                            break;
+                        case R.id.bdescubrir:
+                            fOriginal.setText(cancion.getLetra().get(fraseActual).getFraseOriginal());
+                            bSeguir.setEnabled(true); bSeguir.getBackground().setAlpha(255);
+                            break;
+                        case R.id.brepetirfrase:
+                            if (!repetirFrase) repetirFrase = true;
+                            break;
+                    }
+                }
+            };
+
+            bSeguir.setOnClickListener(onClickListener);
+            bDescubrir.setOnClickListener(onClickListener);
+            bRepetirFrase.setOnClickListener(onClickListener);
+            mediaPlayer.start();
+        }
+
+        public MiThread() {
+            if (modoRepro == MODO_RELLENAR) {
+                onPreExecuteModoRellenar();
+            }
+        }
+
+        @Override public void run() {
             while(contador <cancion.getLetra().size() && corriendo) {
                 switch (modoRepro) {
                     case MODO_NORMAL:
@@ -547,6 +681,9 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
                         break;
                     case MODO_REPETICION:
                         modoRepeticion();
+                        break;
+                    case MODO_RELLENAR:
+                        modoRellenar();
                         break;
                 }
             }
@@ -559,9 +696,7 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
                     contador = 0;
                 }
             });
-
         }
-
 
         /***
          * Gestiona el modo de reproducción Normal:
@@ -574,8 +709,7 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
             try {
                 //while(mediaPlayer.getCurrentPosition()<frase.getTiempoIni() && corriendo){
 
-                while( mediaPlayer.getCurrentPosition()<cancion.getLetra().get(contador).getTiempoIni() && corriendo){
-
+                while(mediaPlayer.getCurrentPosition()<cancion.getLetra().get(contador).getTiempoIni() && corriendo ){
                     sleep(1);
                 }
             } catch (Exception e) {
@@ -594,8 +728,6 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
                                 fTraducida.setText(cancion.getLetra().get(cont).getFraseTraducida());
                                 //publicado = false;
                             }
-
-
                         }
                     });
                 }
@@ -603,6 +735,80 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
                 Log.e(LOG_TAG, "Error ModoNormal bloque2:" + e);
             }
 
+            contador++;
+        }
+
+        /***
+         * Gestión del modo Rellenar
+         * Para cada frase traducida: la reproduce en el audio, oculta una palabra del texto y espera a que la rellenes.
+         */
+        public void modoRellenar() {
+            frase = cancion.getLetra().get(contador);
+            goOnClicked = false;
+            repetirFrase = false;
+
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    bSeguir.setEnabled(false); bSeguir.getBackground().setAlpha(128);
+                    bComprobar.setEnabled(false); bComprobar.getBackground().setAlpha(128);
+                    bDescubrir.setEnabled(false); bDescubrir.getBackground().setAlpha(128);
+                    bRepetirFrase.setEnabled(false); bRepetirFrase.getBackground().setAlpha(128);
+                }
+            });
+
+            try {
+                while(mediaPlayer.getCurrentPosition() < cancion.getLetra().get(contador).getTiempoIni() && corriendo ){
+                    sleep(1);
+                }
+            } catch (Exception e) {
+                Log.e(LOG_TAG, "Error ModoRellenar sleep1:" + e);
+            }
+
+            try {
+                //mediaPlayer.seekTo(frase.getTiempoIni());
+                //mediaPlayer.start();
+                while (mediaPlayer.getCurrentPosition() <= frase.getTiempoFin() && corriendo) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (contador < cancion.getLetra().size() && contador >= 0) {
+                                fraseActual = contador;
+                                fOriginal.setText(frasesARellenar[contador]);
+                                fTraducida.setText(cancion.getLetra().get(contador).getFraseOriginal());
+                            }
+                        }
+                    });
+                }
+            }catch (Exception e){
+                Log.d(LOG_TAG, "Error ThreadLecturaInicial: mediaplayer", e);
+            }
+
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    bComprobar.setEnabled(true); bComprobar.getBackground().setAlpha(255);
+                    bDescubrir.setEnabled(true); bDescubrir.getBackground().setAlpha(255);
+                    bRepetirFrase.setEnabled(true); bRepetirFrase.getBackground().setAlpha(255);
+                }
+            });
+
+            mediaPlayer.pause();
+
+            try {
+                while (!goOnClicked) {
+                    sleep(1000);
+                    if (repetirFrase) {
+                        mediaPlayer.seekTo(frase.getTiempoIni());
+                        goOnClicked = true;
+                        contador--;
+                    }
+                }
+            } catch (Exception e) {
+                Log.e(LOG_TAG, "Error ModoRellenar sleep2:" + e);
+            }
+
+            mediaPlayer.start();
             contador++;
         }
 
@@ -615,8 +821,7 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
             versionLollipop = false;
             tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
                 @Override
-                public void onStart(String s) {
-                }
+                public void onStart(String s) {}
 
                 @Override
                 public void onDone(String utteranceId) {
@@ -624,8 +829,7 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
                 }
 
                 @Override
-                public void onError(String s) {
-                }
+                public void onError(String s) {}
             });
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -745,7 +949,6 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
             }
         }
 
-
         /***
          * Gestión del modo Reproducción
          * Para cada frase: la lee en inglés, espera a que la repitas (reconocimiento voz) y la reproduce en el audio.
@@ -792,9 +995,7 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-
                     bMicro.setVisibility(View.INVISIBLE);
-
                 }
             });
 
@@ -821,7 +1022,6 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
                 Log.e(LOG_TAG, "Error sleep6:" + e);
             }
         }
-
     }
 
 
@@ -938,17 +1138,12 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
         return 0;
     }
 
-
-
-
-
     /***
      * Inicializa el TextToSpeech
      * @param status
      */
     @Override
     public void onInit(int status) {
-
         if (status == TextToSpeech.SUCCESS) {
             //coloca lenguaje por defecto  en nuestro caso el lenguaje es aspañol ;)
 
@@ -962,7 +1157,6 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
 
     }
 
-
     /***
      * Destruimos el TTS cuando cerramos la aplicación
      * Paramos y liberamos el Mediaplayer
@@ -970,7 +1164,6 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
      */
     @Override
     public void onDestroy() {
-
         corriendo = false;
         if (tts != null) {
             tts.stop();
@@ -991,15 +1184,13 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
 
     @Override
     public void onStop() {
-
         corriendo = false;
         try {
-            if (mediaPlayer !=null) {
-
+            if (mediaPlayer != null) {
                     mediaPlayer.stop();
                     mediaPlayer.release();
-
             }
+
         }catch (Exception e){
             Log.e(LOG_TAG, "onStop:MediaPlayer");
         }
@@ -1010,52 +1201,76 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
 
         super.onStop();
     }
+
     /***
      * Cuando salimos de la vista con el botón de retorno paramos la música y liberamos el MediaPlayer
      */
     @Override
-    public void onBackPressed(){
+    public void onBackPressed() {
+        Log.d(LOG_TAG, "onBackPressed " + corriendo);
+        if (!corriendo) {
+            finish();
+            return;
+        }
+
+        if (tts != null) {
+            tts.stop();
+        }
+
+        if (miThread.getState() != Thread.State.TERMINATED) {
+            miThread.stop();
+        }
+
+        try {
+            if (mediaPlayer != null) {
+                mediaPlayer.stop();
+                mediaPlayer.release();
+            }
+
+        } catch (Exception e){
+            Log.e(LOG_TAG, "onStop:MediaPlayer");
+        }
+
         corriendo = false;
-        finish();
+        ponInfoCancion((int)id);
     }
 
 
-    /*//Guardar el estado de la Actividad VistaCancion
+    //Guardar el estado de la Actividad VistaCancion
     @Override
     public void onSaveInstanceState(Bundle estadoGuardado){
+        Log.e(LOG_TAG, "onSaveInstanceState");
         super.onSaveInstanceState(estadoGuardado);
         if(mediaPlayer != null){
             int pos = mediaPlayer.getCurrentPosition();
             estadoGuardado.putInt("posicion", pos);
-
         }
+
         int cont = contador;
         estadoGuardado.putInt("contador", cont);
         estadoGuardado.putBoolean("pulsadoNormal",pulsadoNormal);
         estadoGuardado.putString("modoRepro",modoRepro);
-        estadoGuardado.putBoolean("iniciadoVistas",iniciadoVistas);
+        //estadoGuardado.putBoolean("iniciadoVistas",iniciadoVistas);
         estadoGuardado.putBoolean("reinicio",true);
-
     }
 
-
     @Override
-    public void onRestoreInstanceState(Bundle estadoGuardado){
+    public void onRestoreInstanceState(Bundle estadoGuardado) {
+        Log.e(LOG_TAG, "onRestoreInstanceState");
         super.onRestoreInstanceState(estadoGuardado);
         if(estadoGuardado != null){
             contador = estadoGuardado.getInt("contador");
             pulsadoNormal = estadoGuardado.getBoolean("pulsadoNormal");
             modoRepro = estadoGuardado.getString("modoRepro");
-            iniciadoVistas = estadoGuardado.getBoolean("iniciadoVistas");
-            reinicio = estadoGuardado.getBoolean("reinicio");
+            //iniciadoVistas = estadoGuardado.getBoolean("iniciadoVistas");
+            //reinicio = estadoGuardado.getBoolean("reinicio");
             if(mediaPlayer!= null) {
                 int pos = estadoGuardado.getInt("posicion");
                 mediaPlayer.seekTo(pos);
             }
         }
 
-    }*/
-
+    }
 }
 
 

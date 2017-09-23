@@ -5,11 +5,13 @@
         android:id="@+id/accion_cancelar"
         android:title="@string/cancelar"
         android:orderInCategory="10"
+        android:icon="@drawable/ic_action_cancel"
         app:showAsAction="ifRoom"/>
     <item
         android:id="@+id/accion_guardar"
         android:title="@string/guardar"
         android:orderInCategory="20"
+        android:icon="@drawable/ic_action_save"
         app:showAsAction="ifRoom"/>
 
 </menu>

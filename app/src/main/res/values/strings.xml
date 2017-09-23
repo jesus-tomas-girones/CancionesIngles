@@ -41,6 +41,7 @@
     <string name="normal">Normal</string>
     <string name="lectura">Lectura</string>
     <string name="repetir">Repetir</string>
+    <string name="rellenar">Rellenar</string>
     <string name="confirmar">Confirmar</string>
     <string name="title_activity_tabbed">Canciones ingles</string>
     <string name="section_format">Hello World from section: %1$d</string>
@@ -74,6 +75,7 @@
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="title_activity_rellenar_palabras">RellenarPalabrasActivity</string>
 
 
 </resources>

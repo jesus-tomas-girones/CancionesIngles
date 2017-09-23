@@ -7,5 +7,11 @@
         android:icon="@drawable/ic_action_cloud_download"
         android:orderInCategory="10"
         app:showAsAction="always|withText"/>
+    <item
+        android:id="@+id/accion_borrar"
+        android:title="@string/borrar"
+        android:icon="@drawable/ic_action_delete"
+        android:orderInCategory="20"
+        app:showAsAction="ifRoom|collapseActionView"/>
 
 </menu>
