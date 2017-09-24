@@ -1,5 +1,6 @@
 package com.sacedonmg.cancionesingles;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.support.v7.widget.RecyclerView;
@@ -9,7 +10,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import static com.sacedonmg.cancionesingles.UtilidadesCanciones.obtenerPortadaSD;
-import static com.sacedonmg.cancionesingles.UtilidadesCanciones.obtenerValorDificultad;
 
 /**
  * Created by MGS on 03/09/2016.
@@ -56,6 +56,7 @@ public class AdaptadorCancionesLocal extends RecyclerView.Adapter<ViewHolder> {
      * @param holder
      * @param cancion
      */
+    @SuppressLint("NewApi")
     public void personalizaVistas(ViewHolder holder, Cancion cancion) {
         holder.titulo.setText(cancion.getTitulo());
         holder.autor.setText(cancion.getAutor());
@@ -63,9 +64,18 @@ public class AdaptadorCancionesLocal extends RecyclerView.Adapter<ViewHolder> {
         holder.portada.setImageBitmap(image);
         holder.portada.setScaleType(ImageView.ScaleType.FIT_END);
         holder.portada.setImageUrl(cancion.getImagen(), VolleySingleton.getInstance(contexto).getLectorImagenes());
-        Float valorRating = obtenerValorDificultad(cancion.getDificultad().getTextoDificultad());
-        holder.dificultad.setRating(valorRating);
-        holder.dificultad.isIndicator();
+
+        switch (cancion.getDificultad()) {
+            case DIFICIL:
+                holder.dificultad.setImageDrawable(contexto.getDrawable(R.drawable.dificultad_alta));
+                break;
+            case MEDIO:
+                holder.dificultad.setImageDrawable(contexto.getDrawable(R.drawable.dificultad_media));
+                break;
+            case FACIL:
+                holder.dificultad.setImageDrawable(contexto.getDrawable(R.drawable.dificultad_baja));
+                break;
+        }
     }
 
     @Override

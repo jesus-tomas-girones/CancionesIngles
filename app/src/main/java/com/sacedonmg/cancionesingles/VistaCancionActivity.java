@@ -47,6 +47,7 @@ import com.google.firebase.storage.StorageReference;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InterruptedIOException;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
@@ -207,7 +208,7 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
             new AlertDialog.Builder(this)
                     .setTitle("Es necesario estar loggeado para compartir una canción")
                     .setMessage("¿Desea identificarse ahora?")
-                    .setPositiveButton(R.string.etiquetar_cancion, new DialogInterface.OnClickListener(){
+                    .setPositiveButton("Inciciar sesión", new DialogInterface.OnClickListener(){
                         public void onClick(DialogInterface dialog, int whichButton){
                             Intent i = new Intent (VistaCancionActivity.this, MainActivity.class);
                             i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -434,9 +435,6 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
             @Override
             public void run() {
                 cancion.downloadXML();
-                if (!cancion.getEtiquetado() && lanzarAlerta){
-                    lanzarAlertaEtiquetado();
-                }
             }
 
         });
@@ -701,7 +699,7 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
 
                 int numRandom =  (int )(Math.random() * palabras.length);
                 palabrasOcultas[i] = palabras[numRandom].trim().toLowerCase();
-                frasesARellenar[i] = fraseOriginal.replaceAll(palabras[numRandom], " ........... ");
+                frasesARellenar[i] = fraseOriginal.replaceAll(palabras[numRandom], " _________ ");
             }
 
             bComprobar.setOnClickListener(new View.OnClickListener() {
@@ -851,24 +849,19 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
                 Log.e(LOG_TAG, "Error ModoRellenar sleep1:" + e);
             }
 
-            try {
-                //mediaPlayer.seekTo(frase.getTiempoIni());
-                //mediaPlayer.start();
-                while (mediaPlayer.getCurrentPosition() <= frase.getTiempoFin() && corriendo) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (contador < cancion.getLetra().size() && contador >= 0) {
-                                fraseActual = contador;
-                                fOriginal.setText(frasesARellenar[contador]);
-                                fTraducida.setText(cancion.getLetra().get(contador).getFraseOriginal());
-                            }
+
+            while (mediaPlayer.getCurrentPosition() <= frase.getTiempoFin() && corriendo) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (contador < cancion.getLetra().size() && contador >= 0) {
+                            fraseActual = contador;
+                            fOriginal.setText(frasesARellenar[contador]);
                         }
-                    });
-                }
-            }catch (Exception e){
-                Log.d(LOG_TAG, "Error ThreadLecturaInicial: mediaplayer", e);
+                    }
+                });
             }
+
 
             runOnUiThread(new Runnable() {
                 @Override
@@ -890,7 +883,7 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
                         contador--;
                     }
                 }
-            } catch (Exception e) {
+            } catch (InterruptedException e) {
                 Log.e(LOG_TAG, "Error ModoRellenar sleep2:" + e);
             }
 
@@ -1299,22 +1292,23 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
             return;
         }
 
-        if (tts != null) {
-            tts.stop();
-        }
+        mostrarMensaje(mContext, "Pulse otra vez para volver a la lista");
 
-        if (miThread != null && miThread.isAlive()) {
-            miThread.stop();
-        }
+        if (tts != null) tts.stop();
+
+
 
         try {
+            if (miThread != null && miThread.isAlive()) {
+                miThread.stop();
+            }
+
             if (mediaPlayer != null) {
                 mediaPlayer.stop();
                 mediaPlayer.release();
             }
-
         } catch (Exception e){
-            Log.e(LOG_TAG, "onStop:MediaPlayer");
+            Log.e(LOG_TAG, "onStop:MediaPlayer", e);
         }
 
         corriendo = false;

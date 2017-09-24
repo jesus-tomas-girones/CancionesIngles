@@ -92,7 +92,7 @@ public class EtiquetarCancionActivity extends AppCompatActivity {
      * Inicializa todos los componentes que necesita la vista Etiquetar así como el MediaPlayer
      */
     public void inicializaDatosEtiquetar(){
-        cancion = ListaCanciones.vectorCanciones.elemento((int)id);
+        cancion = ListaCanciones.adaptador.getItem((int)id);
 
         tFraseOriginal = (TextView)findViewById(R.id.fraseOriginal);
         tFraseTraducida = (TextView)findViewById(R.id.fraseTraducida);

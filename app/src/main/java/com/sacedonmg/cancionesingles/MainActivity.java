@@ -117,6 +117,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void setUserInfo() {
         View headerLayout = navigationView.getHeaderView(0);
         TextView txtName = (TextView) headerLayout.findViewById(R.id.txtName);
+        TextView txtEmail = (TextView) headerLayout.findViewById(R.id.txtEmail);
         NetworkImageView fotoUsuario = (NetworkImageView) headerLayout.findViewById(R.id.imageView);
 
         FirebaseUser currentUser = FirebaseSingleton.getInstance().getCurrentUser();
@@ -132,8 +133,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         navigationView.getMenu().findItem(R.id.nav_signout).setVisible(true);
         navigationView.getMenu().findItem(R.id.nav_signin).setVisible(false);
         // Nombre de usuario
-        String name = currentUser.getDisplayName();
-        txtName.setText(/*String.format(getString(R.string.welcome_message), name)*/name);
+        SharedPreferences pref = getSharedPreferences("com.example.audiolibros_internal", MODE_PRIVATE);
+        String name = pref.getString("name", null);
+        String email = pref.getString("email", null);
+        txtName.setText(name);
+        txtEmail.setText(email);
 
         // Foto de usuario
         Uri urlImagen = currentUser.getPhotoUrl();

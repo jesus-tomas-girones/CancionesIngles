@@ -34,21 +34,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static com.sacedonmg.cancionesingles.ListaCanciones.vectorCanciones;
-
 /**
  * Created by MGS on 09/07/2016.
  */
 public final class UtilidadesCanciones {
     private static final String LOG_TAG = "CI::UtilidadesCanciones";
 
-
     static final String EXTENSION_AUDIO = ".mp3";
     static final String EXTENSION_IMAGEN = ".jpg";
     static final String EXTENSION_TXTORIGINAL = "original.txt";
     static final String EXTENSION_TXTTRADUCIDO = "traducido.txt";
     static final String EXTENSION_XML = ".xml";
-
 
     static String nombreFicheroDemo1 = "yesterday";
     static String nombreFicheroDemo2 = "HeroOfWar";
@@ -61,7 +57,6 @@ public final class UtilidadesCanciones {
     static boolean[] subiendoDatos = new boolean[5];
     static boolean[] errorSubiendoDatos = new boolean[5];
     static Boolean borrandoDatos = false;
-
 
     /**
      * Metodo para mostrar mensajes (Toast)
@@ -214,7 +209,7 @@ public final class UtilidadesCanciones {
     static void sincroListReproduccion() {
         List<String> listaFicherosXML = getListOfFilesXML(rutaCarpeta);
         Cancion cancion;
-        vectorCanciones = CancionesVector.getInstance();
+        CancionesVector vectorCanciones = CancionesVector.getInstance();
         for(String nombreXML: listaFicherosXML){
             cancion = new Cancion ();
             String nombreFichero = nombreXML.substring(0, nombreXML.lastIndexOf("."));
@@ -279,7 +274,6 @@ public final class UtilidadesCanciones {
     static Float obtenerValorDificultad(String dificultad){
         float valor = 1;
         switch (dificultad){
-
             case "Medio":
                 valor = 2;
                 break;

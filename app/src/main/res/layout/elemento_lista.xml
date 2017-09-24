@@ -13,40 +13,35 @@
         android:contentDescription="portada" />
 
     <TextView
-        android:id ="@+id/autorCancion"
+        android:id="@+id/nombreCancion"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Autor"
         android:layout_toRightOf="@id/imagenPortada"
-        android:layout_alignParentTop="true"
-
-        />
-    <TextView
-        android:id ="@+id/nombreCancion"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/autorCancion"
-        android:text="Título"
-        android:layout_toRightOf="@id/imagenPortada"
-        android:gravity="center"
+        android:paddingLeft="20dp"
+        android:paddingTop="8dp"
         android:singleLine="true"
+        android:text="Título"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="@color/colorAccent"
-        android:textStyle="bold"
-        />
-    <RatingBar
-        android:id= "@+id/ratDificultad"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/autorCancion"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:isIndicator="true"
-        android:numStars="3"
-        android:rating="1"
         android:layout_alignParentBottom="true"
-        android:layout_below="@id/nombreCancion"
+        android:layout_marginBottom="10dp"
         android:layout_toRightOf="@id/imagenPortada"
-        style="?android:attr/ratingBarStyleSmall"
-       />
+        android:paddingLeft="20dp"
+        android:text="Autor" />
 
-
+    <ImageView
+        android:id="@+id/iv_dificultad"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="10dp"
+        android:layout_marginRight="14dp"
+        android:src="@drawable/dificultad_media" />
 
 </RelativeLayout>

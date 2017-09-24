@@ -117,7 +117,7 @@ public class EdicionNuevaCancionActivity extends AppCompatActivity {
      * @param id identificador del objeto canción dentro del vector canciones
      */
     public void mostrarDatosCancion(int id){
-        cancion = ListaCanciones.vectorCanciones.elemento(id);
+        cancion = ListaCanciones.adaptador.getItem(id);
         titulo.setText(cancion.getTitulo());
         autor.setText(cancion.getAutor());
         genero.setSelection(cancion.getGenero().ordinal());

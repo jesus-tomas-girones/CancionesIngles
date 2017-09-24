@@ -25,4 +25,10 @@
         android:paddingTop="0dp"
         android:text="Canciones ingles"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
+    <TextView android:layout_width="match_parent"
+        android:id="@+id/txtEmail"
+        android:layout_height="wrap_content"
+        android:paddingTop="0dp"
+        android:text=""
+        android:textAppearance="@style/TextAppearance.AppCompat.Body2"/>
 </LinearLayout>

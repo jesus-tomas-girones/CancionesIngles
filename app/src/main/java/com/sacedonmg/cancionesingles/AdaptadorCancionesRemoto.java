@@ -1,5 +1,6 @@
 package com.sacedonmg.cancionesingles;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,8 +13,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 
 import java.util.ArrayList;
-
-import static com.sacedonmg.cancionesingles.UtilidadesCanciones.obtenerValorDificultad;
 
 /**
  * Created by Ana María Arrufat on 18/09/2017.
@@ -68,13 +67,22 @@ public class AdaptadorCancionesRemoto extends FirebaseRecyclerAdapter<Cancion, V
      * @param holder
      * @param cancion
      */
+    @SuppressLint("NewApi")
     public void personalizaVistas(ViewHolder holder, Cancion cancion) {
         holder.titulo.setText(cancion.getTitulo());
         holder.autor.setText(cancion.getAutor());
         holder.portada.setImageUrl(cancion.getImagen(), VolleySingleton.getInstance(contexto).getLectorImagenes());
-        Float valorRating = obtenerValorDificultad(cancion.getDificultad().getTextoDificultad());
-        holder.dificultad.setRating(valorRating);
-        holder.dificultad.isIndicator();
+        switch (cancion.getDificultad()) {
+            case DIFICIL:
+                holder.dificultad.setImageDrawable(contexto.getDrawable(R.drawable.dificultad_alta));
+                break;
+            case MEDIO:
+                holder.dificultad.setImageDrawable(contexto.getDrawable(R.drawable.dificultad_media));
+                break;
+            case FACIL:
+                holder.dificultad.setImageDrawable(contexto.getDrawable(R.drawable.dificultad_baja));
+                break;
+        }
     }
 
     @Override

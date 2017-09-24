@@ -22,8 +22,6 @@ import static com.sacedonmg.cancionesingles.UtilidadesCanciones.validarEscribirS
 import static com.sacedonmg.cancionesingles.UtilidadesCanciones.validarLeerSD;
 
 public class ListaCanciones extends Fragment {
-
-    public static Canciones vectorCanciones = CancionesVector.getInstance();
     private static final String LOG_TAG = "CI::ListaCanciones";
 
     private RecyclerView recyclerView;
