@@ -215,6 +215,7 @@ public class Cancion {
         this.dificultad = manejadorXML.getCancionXML().getDificultad().ordinal();
         this.etiquetado =  manejadorXML.getCancionXML().getEtiquetado();
         this.letra = manejadorXML.getCancionXML().getLetra();
+        this.user = manejadorXML.getCancionXML().getUser();
     }
 
     public void downloadXML() {

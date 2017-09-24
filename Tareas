@@ -27,8 +27,8 @@ D)   Autentificar el usuario con Firebase
 * D.4 -	¿? Añadir NavigationDrawer y ponerle la foto del usuario (como en el curso)
 
 E)   Edición de canciones en el servidor
-  E.1 - Cuando en el listado del servidor exista una canción con usuario igual al actual, permitir opciones de borrado, (opcionalmente edición).
-  E.2 -	Permitir borrar una canción. Borrar los ficheros y el nodo de la base de datos. 
+* E.1 - Cuando en el listado del servidor exista una canción con usuario igual al actual, permitir opciones de borrado, (opcionalmente edición). -> edición no hecho
+* E.2 -	Permitir borrar una canción. Borrar los ficheros y el nodo de la base de datos.
   E.3 -	¿? Permitir la edición de una canción. La opción de edición es opcional, el usuario puede borrarla en el servidor, editarla en local y luego volverla a subir.  
   E.4 -	¿? Cuando se sube una canción que ya existe en el servidor, se verifica que es del mismo usuario y se reemplaza. Equivalente a borrarla y volver a subirla. 
 

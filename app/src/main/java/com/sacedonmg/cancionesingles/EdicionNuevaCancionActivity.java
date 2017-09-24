@@ -1,6 +1,5 @@
 package com.sacedonmg.cancionesingles;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -51,7 +50,6 @@ public class EdicionNuevaCancionActivity extends AppCompatActivity {
             id = extras.getLong("id", -1);
             mostrarDatosCancion((int) id);
         }
-
     }
 
 
@@ -66,7 +64,6 @@ public class EdicionNuevaCancionActivity extends AppCompatActivity {
         switch (item.getItemId()){
             case R.id.accion_guardar:
                 guardarCambios();
-                setResult(Activity.RESULT_OK);
                 finish();
                 return true;
 

@@ -12,7 +12,7 @@ import android.view.ViewGroup;
 
 import java.io.File;
 
-import static com.sacedonmg.cancionesingles.MainActivity.ACTIVIDAD_EDICION;
+import static com.sacedonmg.cancionesingles.MainActivity.ACTIVIDAD_CREAR;
 import static com.sacedonmg.cancionesingles.MainActivity.ACTIVIDAD_VISTA_CANCION_LOCAL;
 import static com.sacedonmg.cancionesingles.UtilidadesCanciones.copyFileFromAssets;
 import static com.sacedonmg.cancionesingles.UtilidadesCanciones.generarFicheros;
@@ -110,7 +110,7 @@ public class ListaCanciones extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resulCode, Intent data) {
         Log.d(LOG_TAG, "onActivityResult");
-        if (requestCode == ACTIVIDAD_VISTA_CANCION_LOCAL || requestCode == ACTIVIDAD_EDICION) {
+        if (requestCode == ACTIVIDAD_VISTA_CANCION_LOCAL || requestCode == ACTIVIDAD_CREAR) {
             inicializaVista();
         }
     }

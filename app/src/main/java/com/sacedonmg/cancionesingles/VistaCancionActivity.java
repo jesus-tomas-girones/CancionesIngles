@@ -23,6 +23,7 @@ import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeech.OnInitListener;
 import android.speech.tts.UtteranceProgressListener;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -35,20 +36,23 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.MediaController;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.android.volley.Cache;
 import com.android.volley.toolbox.NetworkImageView;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseUser;
-import com.twitter.Regex;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.storage.StorageReference;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
+import static com.sacedonmg.cancionesingles.MainActivity.ACTIVIDAD_EDICION;
+import static com.sacedonmg.cancionesingles.MainActivity.ACTIVIDAD_ETIQUETAR;
 import static com.sacedonmg.cancionesingles.MainActivity.ACTIVIDAD_VISTA_CANCION_LOCAL;
 import static com.sacedonmg.cancionesingles.MainActivity.ACTIVIDAD_VISTA_CANCION_REMOTA;
 import static com.sacedonmg.cancionesingles.MainActivity.CANCION_DESCARGADA;
@@ -101,7 +105,7 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
         id = extras.getLong("id", -1);
         source = extras.getInt("source", -1);
         tts = new TextToSpeech( this, this );
-        ponInfoCancion((int) id);
+        ponInfoCancion((int) id, true);
     }
 
     @Override
@@ -221,6 +225,93 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
         }
     }
 
+    private void borrarCancionLocal(int id) {
+        CancionesVector cancionesVector = CancionesVector.getInstance();
+        cancionesVector.borrar(id);
+        ListaCanciones.adaptador.notifyItemRemoved(id);
+        finish();
+    }
+
+    boolean[] borrandoDatos = {true, true, true, true, true};
+    private void borrarArchivoRemoto(StorageReference cancionStorageRef, final String path, final int i) {
+        Uri uri = Uri.parse(path);
+        final String nodo = uri.getLastPathSegment().toString();
+        Log.d(LOG_TAG, "borrando fichero " + nodo);
+
+        StorageReference archivoRef = cancionStorageRef.child(nodo.toLowerCase());
+        archivoRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Log.d(LOG_TAG, "onSuccess: "+ nodo);
+                borrandoDatos[i] = false;
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                Log.d(LOG_TAG, "onFailure: " + nodo);
+                borrandoDatos[i] = false;
+            }
+        });
+    }
+
+    private void borrarCancionRemota(final int id) {
+        Cancion cancion = getCancionById(id);
+        Uri uri = Uri.parse(cancion.getAudio());
+        final String nombre = uri.getLastPathSegment().split("\\.")[0];
+
+        final ProgressDialog progressDialog = new ProgressDialog(mContext);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.setCanceledOnTouchOutside(false);
+        progressDialog.setTitle("Borrando " + cancion.getTitulo());
+        progressDialog.show();
+
+        StorageReference cancionStorageRef = FirebaseSingleton.getInstance().getStorageReference().child(nombre.toLowerCase());
+        borrarArchivoRemoto(cancionStorageRef,cancion.getAudio() , 0);
+        borrarArchivoRemoto(cancionStorageRef, cancion.getXml(), 1);
+        borrarArchivoRemoto(cancionStorageRef, cancion.getTxt_original(), 2);
+        borrarArchivoRemoto(cancionStorageRef, cancion.getTxt_traducido(), 3);
+        borrarArchivoRemoto(cancionStorageRef, cancion.getImagen(), 4);
+
+        final Thread waitingThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    int count = 5;
+
+                    while(count > 0) {
+                        count = 0;
+                        for (int i = 0; i < borrandoDatos.length; i++) count = borrandoDatos[i] ? count + 1 : count;
+
+                        final int countToShow = count;
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run () {
+                                progressDialog.setMessage("Quedan " + countToShow + "/5 archivos");
+                            }
+                        });
+
+                        TimeUnit.SECONDS.sleep(1);
+                    }
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run () {
+                            progressDialog.dismiss();
+                        }
+                    });
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                DatabaseReference cancionesRef = FirebaseSingleton.getInstance().getCancionesReference();
+                cancionesRef.child(nombre).removeValue();
+                finish();
+            }
+        });
+
+        waitingThread.start();
+    }
+
     /***
      * Elimina la cancion seleccionada
      * @param id
@@ -234,16 +325,16 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
             }
         }
 
-
         new AlertDialog.Builder(this)
                 .setTitle(R.string.titulo_borrar)
                 .setMessage(R.string.mensaje_borrar)
                 .setPositiveButton(R.string.confirmar, new DialogInterface.OnClickListener(){
                     public void onClick(DialogInterface dialog, int whichButton){
-                        CancionesVector cancionesVector = CancionesVector.getInstance();
-                        cancionesVector.borrar(id);
-                        ListaCanciones.adaptador.notifyItemRemoved(id);
-                        finish();
+                        if (source == ACTIVIDAD_VISTA_CANCION_REMOTA) {
+                            borrarCancionRemota(id);
+                        } else {
+                            borrarCancionLocal(id);
+                        }
                     }
 
                 })
@@ -258,7 +349,7 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
         Intent i = new Intent (this, EdicionNuevaCancionActivity.class);
         i.putExtra("id",id);
         i.putExtra("editar",true);
-        startActivityForResult(i,1234);
+        startActivityForResult(i, ACTIVIDAD_EDICION);
     }
 
 
@@ -273,14 +364,11 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
                     public void onClick(DialogInterface dialog, int whichButton){
                         Intent i = new Intent (VistaCancionActivity.this, EtiquetarCancionActivity.class);
                         i.putExtra("id",id);
-                        startActivityForResult(i,2345);
+                        startActivityForResult(i, ACTIVIDAD_ETIQUETAR);
                     }
-
                 })
                 .setNegativeButton(R.string.cancelar,null)
                 .show();
-
-
     }
 
     /***
@@ -291,8 +379,8 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
      */
     @Override
     protected void onActivityResult(int requestCode, int resulCode, Intent data){
-        if(requestCode == 1234 || requestCode == 2345){
-            ponInfoCancion((int)id);
+        if(requestCode == ACTIVIDAD_EDICION || requestCode == ACTIVIDAD_ETIQUETAR){
+            ponInfoCancion((int)id, true);
             findViewById(R.id.vista_cancion).invalidate();
         }
 
@@ -333,9 +421,9 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
         return ListaCancionesRemoto.adaptador.getItem(id);
     }
 
-    private void getEtiquetado(final Cancion cancion) {
+    private void getEtiquetado(final Cancion cancion, final boolean lanzarAlerta) {
         if (source == ACTIVIDAD_VISTA_CANCION_LOCAL) {
-            if(!cancion.getEtiquetado()){
+            if(!cancion.getEtiquetado() && lanzarAlerta){
                 lanzarAlertaEtiquetado();
             }
 
@@ -346,7 +434,7 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
             @Override
             public void run() {
                 cancion.downloadXML();
-                if (!cancion.getEtiquetado()){
+                if (!cancion.getEtiquetado() && lanzarAlerta){
                     lanzarAlertaEtiquetado();
                 }
             }
@@ -360,10 +448,10 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
      * Asigna los datos del elemento cancion seleccionado a la Vista_Cancion
      * @param id posición del objeto canción en el vector canciones.
      */
-    public void ponInfoCancion(int id) {
+    public void ponInfoCancion(int id, boolean lanzarAlerta) {
         cancion = getCancionById(id);
         Log.d(LOG_TAG, cancion.toString());
-        getEtiquetado(cancion);
+        getEtiquetado(cancion, lanzarAlerta);
         bindViews();
         titulo.setText(cancion.getTitulo());
         if (source == ACTIVIDAD_VISTA_CANCION_LOCAL) {
@@ -390,7 +478,6 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
         mediaController = new MediaController(this);
         mediaController.setVisibility(View.VISIBLE);
         try {
-
             if (cancion.getAudio().compareTo("") != 0) {
                 Uri audio = Uri.parse(cancion.getAudio());
                 if ((source == ACTIVIDAD_VISTA_CANCION_LOCAL && validarLeerSD()) || source == ACTIVIDAD_VISTA_CANCION_REMOTA) {
@@ -420,7 +507,7 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
                     public void onClick(DialogInterface dialog, int whichButton){
                         Intent i = new Intent (VistaCancionActivity.this, EtiquetarCancionActivity.class);
                         i.putExtra("id",id);
-                        startActivityForResult(i,2345);
+                        startActivityForResult(i,ACTIVIDAD_ETIQUETAR);
                     }
 
                 })
@@ -592,7 +679,7 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
      * Hilo que gestiona los modos de reproducción.
      * modoNormal, modoLecturaInicial, modoRepetición
      */
-    class MiThread extends Thread{
+    class MiThread extends Thread {
         int result;
         Frase frase;
         boolean repetir = true;
@@ -605,7 +692,6 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
         private boolean repetirFrase;
 
         private void onPreExecuteModoRellenar() {
-
             frasesARellenar = new String[cancion.getLetra().size()];
             palabrasOcultas = new String[cancion.getLetra().size()];
 
@@ -1217,7 +1303,7 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
             tts.stop();
         }
 
-        if (miThread.getState() != Thread.State.TERMINATED) {
+        if (miThread != null && miThread.isAlive()) {
             miThread.stop();
         }
 
@@ -1232,7 +1318,7 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
         }
 
         corriendo = false;
-        ponInfoCancion((int)id);
+        ponInfoCancion((int)id, false);
     }
 
 

@@ -32,6 +32,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static com.sacedonmg.cancionesingles.ListaCanciones.vectorCanciones;
 
@@ -58,6 +59,7 @@ public final class UtilidadesCanciones {
 
     // static boolean subiendoDatos = false;
     static boolean[] subiendoDatos = new boolean[5];
+    static boolean[] errorSubiendoDatos = new boolean[5];
     static Boolean borrandoDatos = false;
 
 
@@ -215,7 +217,6 @@ public final class UtilidadesCanciones {
         vectorCanciones = CancionesVector.getInstance();
         for(String nombreXML: listaFicherosXML){
             cancion = new Cancion ();
-            // TODO: set user?
             String nombreFichero = nombreXML.substring(0, nombreXML.lastIndexOf("."));
             cancion.setNombreFichero(nombreFichero);
             try {
@@ -295,14 +296,17 @@ public final class UtilidadesCanciones {
 
     private static void updateProgressDialog(ProgressDialog progressDialog, Context mContext) {
         int count = 0;
+        int errores = 0;
         for (int i = 0; i < subiendoDatos.length; i++) {
             count = !subiendoDatos[i] ? count : count + 1 ;
+            errores = errorSubiendoDatos[i] ? errores + 1 : errores;
         }
 
         progressDialog.setMessage("Quedan " + count + "/5 ficheros");
         if (count == 0) {
             progressDialog.dismiss();
-            mostrarMensaje(mContext, "¡Canción subida con éxito!");
+            String msg = errores > 0 ? "Ha ocurrido algún error al subir los archivos. Inténtelo de nuevo" : "¡Canción subida con éxito!";
+            mostrarMensaje(mContext, msg);
         }
     }
 
@@ -338,6 +342,7 @@ public final class UtilidadesCanciones {
             public void onFailure(@NonNull Exception exception) {
                 Log.d(LOG_TAG, "onFailure " + fileName, exception);
                 subiendoDatos[index] = false;
+                errorSubiendoDatos[index] = true;
                 updateProgressDialog(progressDialog, mContext);
             }
         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
@@ -345,6 +350,7 @@ public final class UtilidadesCanciones {
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                 Log.d(LOG_TAG, "onSuccess " + fileName);
                 subiendoDatos[index] = false;
+                errorSubiendoDatos[index] = false;
                 updateProgressDialog(progressDialog, mContext);
                 Uri downloadUrl = taskSnapshot.getDownloadUrl();
                 String nodo = getNodoByFilename(fileName);
@@ -371,13 +377,13 @@ public final class UtilidadesCanciones {
         });
     }
 
-    private static void subirFicheros(Cancion cancion, ProgressDialog progressDialog, Context mContext) {
+    private static void subirFicheros(final Cancion cancion, ProgressDialog progressDialog, Context mContext) {
         String titulo = cancion.getNombreFichero();
         FirebaseSingleton firebaseSingleton = FirebaseSingleton.getInstance();
 
         // DataBase reference
         DatabaseReference databaseReference = firebaseSingleton.getCancionesReference();
-        DatabaseReference cancionDatabaseRef = databaseReference.child(titulo);
+        final DatabaseReference cancionDatabaseRef = databaseReference.child(titulo);
 
         StorageReference storageReference = firebaseSingleton.getStorageReference();
         StorageReference cancionStorageRef = storageReference.child(titulo);
@@ -403,6 +409,36 @@ public final class UtilidadesCanciones {
         // Subir letra traducida
         localPath = cancion.getTxt_traducido();
         subirFichero(localPath, cancionDatabaseRef, cancionStorageRef, progressDialog, 4, mContext);
+
+        final Thread waitingThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    int countSubiendo = 5;
+
+                    while(countSubiendo > 0) {
+                        countSubiendo = 0;
+                        for (int i = 0; i < subiendoDatos.length; i++) {
+                            countSubiendo = subiendoDatos[i] ? countSubiendo + 1 : countSubiendo;
+                            // countError = countError[i] ? countError + 1 : countError;
+                        }
+                        TimeUnit.SECONDS.sleep(1);
+                    }
+
+                    cancionDatabaseRef.child("titulo").setValue(cancion.getTitulo());
+                    cancionDatabaseRef.child("autor").setValue(cancion.getAutor());
+                    cancionDatabaseRef.child("dificultad").setValue(cancion.getDificultad());
+                    cancionDatabaseRef.child("genero").setValue(cancion.getGenero());
+                    cancionDatabaseRef.child("id").setValue(cancion.getId());
+                    cancionDatabaseRef.child("user").setValue(cancion.getUser());
+
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        waitingThread.start();
     }
 
 

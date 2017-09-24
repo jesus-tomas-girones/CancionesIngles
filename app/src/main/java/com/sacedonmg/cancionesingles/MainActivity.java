@@ -40,7 +40,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     // REQUEST CODES
     public static int ACTIVIDAD_VISTA_CANCION_LOCAL = 4567;
     public static int ACTIVIDAD_VISTA_CANCION_REMOTA = 4568;
-    public static int ACTIVIDAD_EDICION = 5678;
+    public static int ACTIVIDAD_CREAR = 5678;
+    public static int ACTIVIDAD_EDICION = 1234;
+    public static int ACTIVIDAD_ETIQUETAR = 2345;
 
     // RESULT CODES
     public static int CANCION_DESCARGADA = 1001;
@@ -174,7 +176,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     public void onClick(DialogInterface dialog, int whichButton){
                         Intent i = new Intent (context, EdicionNuevaCancionActivity.class);
                         i.putExtra("editar",false);
-                        startActivityForResult(i, ACTIVIDAD_EDICION);
+                        startActivityForResult(i, ACTIVIDAD_CREAR);
                     }
 
                 })
@@ -266,8 +268,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.d(LOG_TAG, "onActivityResult");
-        if (requestCode == ACTIVIDAD_EDICION) {
-            int posicion = data.getIntExtra("posicion", -1);
+        if (requestCode == ACTIVIDAD_CREAR) {
+            int posicion = data != null && data.hasExtra("posicion") ? data.getIntExtra("posicion", -1) : -1;
             if (resultCode == CREAR_OK) ListaCanciones.adaptador.notifyItemInserted(CancionesVector.getInstance().tamanyo() - 1);
             else if (resultCode == EDITAR_OK && posicion >= 0) ListaCanciones.adaptador.notifyItemChanged(posicion);
             else if (resultCode == BORRAR_OK && posicion >= 0) ListaCanciones.adaptador.notifyItemRemoved(posicion);
