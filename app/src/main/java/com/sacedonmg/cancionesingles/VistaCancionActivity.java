@@ -54,6 +54,7 @@ import java.util.concurrent.TimeUnit;
 
 import static com.sacedonmg.cancionesingles.MainActivity.ACTIVIDAD_EDICION;
 import static com.sacedonmg.cancionesingles.MainActivity.ACTIVIDAD_ETIQUETAR;
+import static com.sacedonmg.cancionesingles.MainActivity.ACTIVIDAD_LOGIN;
 import static com.sacedonmg.cancionesingles.MainActivity.ACTIVIDAD_VISTA_CANCION_LOCAL;
 import static com.sacedonmg.cancionesingles.MainActivity.ACTIVIDAD_VISTA_CANCION_REMOTA;
 import static com.sacedonmg.cancionesingles.MainActivity.CANCION_DESCARGADA;
@@ -212,9 +213,8 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
                         public void onClick(DialogInterface dialog, int whichButton){
                             Intent i = new Intent (VistaCancionActivity.this, MainActivity.class);
                             i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                            Bundle options = new Bundle();
-                            options.putInt("SCREEN", R.id.nav_signin);
-                            startActivity(i, options);
+                            i.putExtra("SCREEN", ACTIVIDAD_LOGIN);
+                            startActivity(i);
                         }
 
                     })
@@ -517,6 +517,7 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
      * inicializa las Vistas a su estado original teniendo en cuenta si la canción está etiquetada o no
      */
     public void inicializaVistas(){
+        Log.d(LOG_TAG, "inicializaVistas");
         fTraducida.setText("");
         fOriginal.setText("");
         fauxiliar.setText("");

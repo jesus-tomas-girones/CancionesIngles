@@ -324,12 +324,13 @@ public final class UtilidadesCanciones {
         return "";
     }
 
-    private static void subirFichero(String localPath, final DatabaseReference fileDataBaseRef, StorageReference fileStorageRef, final ProgressDialog progressDialog, final int index, final Context mContext) {
+    private static void subirFichero(String localPath, final DatabaseReference fileDataBaseRef, StorageReference cancionStorageRef, final ProgressDialog progressDialog, final int index, final Context mContext) {
         Log.d(LOG_TAG, "subiendo fichero " + localPath);
 
         Uri file = Uri.fromFile(new File(localPath));
         final String fileName = file.getLastPathSegment();
 
+        StorageReference fileStorageRef = cancionStorageRef.child(fileName);
         UploadTask uploadTask = fileStorageRef.putFile(file);
         uploadTask.addOnFailureListener(new OnFailureListener() {
             @Override
@@ -372,7 +373,7 @@ public final class UtilidadesCanciones {
     }
 
     private static void subirFicheros(final Cancion cancion, ProgressDialog progressDialog, Context mContext) {
-        String titulo = cancion.getNombreFichero();
+        String titulo = cancion.getNombreFichero().toLowerCase().replace(" ", "") + "/";
         FirebaseSingleton firebaseSingleton = FirebaseSingleton.getInstance();
 
         // DataBase reference
@@ -421,8 +422,8 @@ public final class UtilidadesCanciones {
 
                     cancionDatabaseRef.child("titulo").setValue(cancion.getTitulo());
                     cancionDatabaseRef.child("autor").setValue(cancion.getAutor());
-                    cancionDatabaseRef.child("dificultad").setValue(cancion.getDificultad());
-                    cancionDatabaseRef.child("genero").setValue(cancion.getGenero());
+                    cancionDatabaseRef.child("dificultad").setValue(cancion.getDificultad().ordinal());
+                    cancionDatabaseRef.child("genero").setValue(cancion.getGenero().ordinal());
                     cancionDatabaseRef.child("id").setValue(cancion.getId());
                     cancionDatabaseRef.child("user").setValue(cancion.getUser());
 
@@ -447,7 +448,7 @@ public final class UtilidadesCanciones {
 
 
     public static void subirCancionAFireBase (final Cancion cancion, final ProgressDialog progressDialog, final Context mContext) {
-        final String titulo = cancion.getTitulo().toLowerCase().replace(" ", "") + "/";
+        final String titulo = cancion.getNombreFichero().toLowerCase().replace(" ", "") + "/";
         String localPath = cancion.getAudio();
 
         progressDialog.setMessage("Comprobando si ya existe en el servidor...");

@@ -43,6 +43,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public static int ACTIVIDAD_CREAR = 5678;
     public static int ACTIVIDAD_EDICION = 1234;
     public static int ACTIVIDAD_ETIQUETAR = 2345;
+    public static final int ACTIVIDAD_LOGIN = 2346;
+    public static final int ACTIVIDAD_TABBED = 2347;
 
     // RESULT CODES
     public static int CANCION_DESCARGADA = 1001;
@@ -103,14 +105,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         setUserInfo();
 
-        int screen = savedInstanceState != null ? savedInstanceState.getInt("SCREEN", -1) : R.id.nav_tabbed_activity;
-        screen = screen == -1 ? R.id.nav_tabbed_activity : screen;
-        if (screen ==  R.id.nav_signin) {
-            Log.d(LOG_TAG, "R.id.nav_signin");
-        } else {
-            Log.d(LOG_TAG, "R.id.nav_tabbed_activity");
-        }
-
+        Bundle bundle = getIntent().getExtras();
+        int screen = bundle != null ? bundle.getInt("SCREEN", -1) : -1;
+        screen = screen != -1 ? screen : ACTIVIDAD_TABBED;
         displaySelectedScreen(screen);
     }
 
@@ -196,7 +193,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             return false;
         }
 
-         if(id == R.id.nuevo && viewPager.getCurrentItem() == SECCION_DESCARGADAS){
+         if(id == R.id.nuevo){
             lanzarNuevo();
             return true;
         }
@@ -216,8 +213,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         pref.edit().remove("email").commit();
                         pref.edit().remove("name").commit();
                         setUserInfo();
-                        displaySelectedScreen(R.id.nav_tabbed_activity);
                         mostrarMensaje(MainActivity.this, "¡Hasta pronto!");
+                        displaySelectedScreen(ACTIVIDAD_TABBED);
                     }
                 });
     }
@@ -225,12 +222,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void displaySelectedScreen(int itemId) {
         Fragment fragment = null;
         switch (itemId) {
-            case R.id.nav_signin:
+            case ACTIVIDAD_LOGIN:
                 Log.d(LOG_TAG, "R.id.nav_signin");
                 floatingActionButton.setVisibility(View.GONE);
                 fragment = new LoginActivity();
                 break;
-            case R.id.nav_tabbed_activity:
+            case ACTIVIDAD_TABBED:
                 Log.d(LOG_TAG, "nav_tabbed_activity");
                 floatingActionButton.setVisibility(View.VISIBLE);
                 fragment = new TabbedActivity();
@@ -252,8 +249,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Log.d(LOG_TAG, "onNavigationItemSelected");
 
         int id = item.getItemId();
-        if (id == R.id.nav_signin || id == R.id.nav_tabbed_activity) {
-            displaySelectedScreen(id);
+        if (id == R.id.nav_signin) {
+            displaySelectedScreen(ACTIVIDAD_LOGIN);
+        } else if (id == R.id.nav_tabbed_activity) {
+            displaySelectedScreen(ACTIVIDAD_TABBED);
         } else if (id == R.id.nav_signout) {
             logOut();
         } else if (id == R.id.action_settings) {

@@ -79,7 +79,6 @@ public class ListaCanciones extends Fragment {
     public boolean crearCarpeta(File carpeta) {
         boolean resultado = false;
 
-
         if (validarEscribirSD()) {
             carpeta.mkdirs();
             Log.v(LOG_TAG, "Carpeta cancionesingles creada en la SD");

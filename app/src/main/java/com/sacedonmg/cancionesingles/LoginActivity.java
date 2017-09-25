@@ -52,12 +52,14 @@ public class LoginActivity extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         FacebookSdk.sdkInitialize(getContext());
+        MainActivity.getTabLayout().setVisibility(View.GONE);
         View rootView = inflater.inflate(R.layout.login_activity, container, false);
         progressBar = (ProgressBar) rootView.findViewById(R.id.progressBar);
         inputEmail = (EditText) rootView.findViewById(R.id.editTxtEmail);
         inputPassword = (EditText) rootView.findViewById(R.id.editTxtPassword);
         wrapperEmail = (TextInputLayout) rootView.findViewById(R.id.wrapperEmail);
         wrapperPassword = (TextInputLayout) rootView.findViewById(R.id.wrapperPassword);
+        container = (RelativeLayout) rootView.findViewById(R.id.loginContainer);
         auth = FirebaseSingleton.getInstance().getAuth();
 
         rootView.findViewById(R.id.btnSignup).setOnClickListener(new View.OnClickListener() {

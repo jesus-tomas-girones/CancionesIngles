@@ -122,7 +122,8 @@ public class AdaptadorCancionesRemoto extends FirebaseRecyclerAdapter<Cancion, V
         int index = keys.indexOf(key);
         if (index != -1) {
             items.set(index, dataSnapshot);
-            notifyItemChanged(index, dataSnapshot.getValue(Cancion.class));
+            Cancion cancion = dataSnapshot.getValue(Cancion.class);
+            notifyItemChanged(index, cancion);
         }
     }
 }
