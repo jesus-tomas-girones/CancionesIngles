@@ -38,18 +38,19 @@ import static com.sacedonmg.cancionesingles.UtilidadesCanciones.validarLeerSD;
 public class Cancion {
     private static final String LOG_TAG = "CI::Cancion";
 
-    private String audio;
-    private String autor;
-    private int dificultad;
-    private int genero;
-    private String id;
-    private String imagen;
     private String titulo;
-    private String txt_original;
-    private String txt_traducido;
-    private String xml;
+    private String autor;
+    private int genero;
+    private int dificultad;
     private String nombreFichero;
-    private String user;
+
+    private String audio;           // URL en la que se encuentra el fichero de audio
+    private String id;              // Identificador de la imagen
+    private String imagen;          // URL en la que se encuentra la imagen de la portada
+    private String txt_original;    // URL en la que se encuentra el fichero con la letra original
+    private String txt_traducido;   // URL en la que se encuentra el fichero con la letra traducida
+    private String xml;             // URL en la que se encuentra el fichero XML
+    private String user;            // Usuario que creo/subió la canción
 
     private Boolean etiquetado;
     private List<Frase> letra;

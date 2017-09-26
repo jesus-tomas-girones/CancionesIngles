@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.media.AudioManager;
@@ -23,7 +24,6 @@ import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeech.OnInitListener;
 import android.speech.tts.UtteranceProgressListener;
-import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -37,28 +37,29 @@ import android.widget.ImageButton;
 import android.widget.MediaController;
 import android.widget.TextView;
 
-import com.android.volley.Cache;
 import com.android.volley.toolbox.NetworkImageView;
-import com.bumptech.glide.util.Util;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.storage.StorageReference;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InterruptedIOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static com.sacedonmg.cancionesingles.MainActivity.ACTIVIDAD_EDICION;
 import static com.sacedonmg.cancionesingles.MainActivity.ACTIVIDAD_ETIQUETAR;
 import static com.sacedonmg.cancionesingles.MainActivity.ACTIVIDAD_LOGIN;
 import static com.sacedonmg.cancionesingles.MainActivity.ACTIVIDAD_VISTA_CANCION_LOCAL;
 import static com.sacedonmg.cancionesingles.MainActivity.ACTIVIDAD_VISTA_CANCION_REMOTA;
 import static com.sacedonmg.cancionesingles.MainActivity.CANCION_DESCARGADA;
+import static com.sacedonmg.cancionesingles.MainActivity.READ_EXTERNAL_STORAGE_PERMISSION;
+import static com.sacedonmg.cancionesingles.MainActivity.WRITE_EXTERNAL_STORAGE_PERMISSION;
+import static com.sacedonmg.cancionesingles.Utilidades.isPermissionGranted;
+import static com.sacedonmg.cancionesingles.Utilidades.requestPermission;
+import static com.sacedonmg.cancionesingles.UtilidadesCanciones.borrandoDatos;
 import static com.sacedonmg.cancionesingles.UtilidadesCanciones.mostrarMensaje;
 import static com.sacedonmg.cancionesingles.UtilidadesCanciones.obtenerPortadaSD;
 import static com.sacedonmg.cancionesingles.UtilidadesCanciones.validarLeerSD;
@@ -93,7 +94,6 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
     private boolean pulsadoNormal = false;
     private int contador = 0;
     private boolean estaHablando, versionLollipop;
-
 
     private int source;
     private Context mContext;
@@ -150,6 +150,11 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
     }
 
     public void descargarCancion() {
+        if (!isPermissionGranted(WRITE_EXTERNAL_STORAGE, this)) {
+            requestPermission(WRITE_EXTERNAL_STORAGE, this);
+            return;
+        }
+
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Descargar cancion");
         builder.setMessage("¿Quiere descargar la canción? Si lo hace la tendrá disponible cuando no tenga conexión a Internet.");
@@ -251,8 +256,8 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
                     int count = 5;
                     while(count > 0) {
                         count = 0;
-                        for (int i = 0; i < UtilidadesCanciones.borrandoDatos.length; i++)
-                            count = UtilidadesCanciones.borrandoDatos[i] ? count + 1 : count;
+                        for (int i = 0; i < borrandoDatos.length; i++)
+                            count = borrandoDatos[i] ? count + 1 : count;
 
                         final int countToShow = count;
                         runOnUiThread(new Runnable() {
@@ -362,6 +367,17 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
             ArrayList<String> text=data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
             fTraducida.setText(text.get(0));
         }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if(requestCode == READ_EXTERNAL_STORAGE_PERMISSION || requestCode == WRITE_EXTERNAL_STORAGE_PERMISSION) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED && validarLeerSD()) {
+                descargarCancion();
+            }
+        }
+
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     public void bindViews() {
@@ -667,7 +683,8 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
             palabrasOcultas = new String[cancion.getLetra().size()];
 
             for (int i = 0; i < frasesARellenar.length; i++) {
-                String fraseOriginal = cancion.getLetra().get(i).getFraseOriginal();
+                List<Frase> letra = cancion.getLetra();
+                String fraseOriginal = letra.get(i).getFraseOriginal();
                 String[] palabras = fraseOriginal.split(" ");
 
                 int numRandom =  (int )(Math.random() * palabras.length);
@@ -834,7 +851,6 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
                     }
                 });
             }
-
 
             runOnUiThread(new Runnable() {
                 @Override
@@ -1226,12 +1242,9 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
 
     @Override
     public void onResume(){
-
+        Log.d(LOG_TAG, "onResume");
         super.onResume();
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        corriendo = true;
-
-
     }
 
     @Override
@@ -1269,17 +1282,16 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
 
         if (tts != null) tts.stop();
 
-
-
         try {
-            if (miThread != null && miThread.isAlive()) {
-                miThread.stop();
-            }
-
             if (mediaPlayer != null) {
                 mediaPlayer.stop();
                 mediaPlayer.release();
             }
+
+            if (miThread != null && miThread.isAlive()) {
+                miThread.stop();
+            }
+
         } catch (Exception e){
             Log.e(LOG_TAG, "onStop:MediaPlayer", e);
         }

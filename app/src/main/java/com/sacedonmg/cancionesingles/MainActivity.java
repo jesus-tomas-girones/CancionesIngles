@@ -4,7 +4,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -31,8 +31,16 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.io.File;
+
+import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
+import static com.sacedonmg.cancionesingles.Utilidades.isPermissionGranted;
+import static com.sacedonmg.cancionesingles.Utilidades.requestPermission;
+import static com.sacedonmg.cancionesingles.UtilidadesCanciones.crearArchivosEjemplo;
 import static com.sacedonmg.cancionesingles.UtilidadesCanciones.mostrarMensaje;
+import static com.sacedonmg.cancionesingles.UtilidadesCanciones.rutaCarpeta;
 import static com.sacedonmg.cancionesingles.UtilidadesCanciones.sincroListReproduccion;
+import static com.sacedonmg.cancionesingles.UtilidadesCanciones.validarLeerSD;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
     private String LOG_TAG = "CI::MainActivity";
@@ -45,12 +53,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public static int ACTIVIDAD_ETIQUETAR = 2345;
     public static final int ACTIVIDAD_LOGIN = 2346;
     public static final int ACTIVIDAD_TABBED = 2347;
+    public static final int WRITE_EXTERNAL_STORAGE_PERMISSION = 3000;
+    public static final int READ_EXTERNAL_STORAGE_PERMISSION = 3001;
 
     // RESULT CODES
     public static int CANCION_DESCARGADA = 1001;
     public static int EDITAR_OK = 1002;
     public static int BORRAR_OK = 1002;
     public static int CREAR_OK = 1002;
+    public static int LOGIN_SUCCESS = 1003;
 
     public static final int SECCION_DESCARGADAS = 0;
     public static final int SECCION_REMOTAS = 1;
@@ -63,21 +74,59 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private Context context;
     private FloatingActionButton floatingActionButton;
     private static TabLayout tabLayout;
-    private Menu menu;
     private NavigationView navigationView;
 
     public static TabLayout getTabLayout() {
         return tabLayout;
     }
 
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        boolean sincronizar = false;
+        if(requestCode == READ_EXTERNAL_STORAGE_PERMISSION) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED && validarLeerSD()) {
+                File carpeta = new File(rutaCarpeta);
+                if (!carpeta.exists()) {  //Es la primera vez que se instala la aplicación.
+                    carpeta.mkdirs();
+                    sincronizar  = crearArchivosEjemplo(this);
+                } else { //ya existia la carpeta
+                    sincronizar = true;
+                }
+            }
+        }
+
+        if(requestCode == WRITE_EXTERNAL_STORAGE_PERMISSION) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                sincronizar = crearArchivosEjemplo(this);
+            }
+        }
+
+        if (sincronizar) sincroListReproduccion();
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    private void sincronizarContenidoSD() {
+        if (isPermissionGranted(READ_EXTERNAL_STORAGE, this)) {
+            sincroListReproduccion();
+            ListaCanciones.adaptador.notifyDataSetChanged();
+        } else  {
+          requestPermission(READ_EXTERNAL_STORAGE, this);
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        context = this;
         setContentView(R.layout.activity_navigation_drawer);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         tabLayout = (TabLayout) findViewById(R.id.tabs);
+
+        // requestPermission(Manifest.permission.READ_EXTERNAL_STORAGE);
+        // requestPermission(Manifest.permission.READ_EXTERNAL_STORAGE);
 
         // Floating button
         floatingActionButton = (FloatingActionButton) findViewById(R.id.fab);
@@ -85,9 +134,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onClick(View view) {
                 ViewPager viewPager = TabbedActivity.getViewPager();
-                if (viewPager != null && viewPager.getCurrentItem() == SECCION_DESCARGADAS) {
-                    sincroListReproduccion();
-                    ListaCanciones.adaptador.notifyDataSetChanged();
+                if (viewPager == null) {
+                    return;
+                }
+
+                if (viewPager.getCurrentItem() == SECCION_DESCARGADAS) {
+                    sincronizarContenidoSD();
+                }
+
+                if (viewPager.getCurrentItem() == SECCION_REMOTAS) {
+                    ListaCancionesRemoto.adaptador.notifyDataSetChanged();
                 }
             }
         });
@@ -101,17 +157,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         navigationView = (NavigationView) findViewById( R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        context = this;
-
-        setUserInfo();
 
         Bundle bundle = getIntent().getExtras();
+        int result = bundle != null ? bundle.getInt("result", -1) : -1;
+        setUserInfo(result);
+
         int screen = bundle != null ? bundle.getInt("SCREEN", -1) : -1;
         screen = screen != -1 ? screen : ACTIVIDAD_TABBED;
         displaySelectedScreen(screen);
     }
 
-    private void setUserInfo() {
+    private void setUserInfo(int result) {
         View headerLayout = navigationView.getHeaderView(0);
         TextView txtName = (TextView) headerLayout.findViewById(R.id.txtName);
         TextView txtEmail = (TextView) headerLayout.findViewById(R.id.txtEmail);
@@ -122,17 +178,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             navigationView.getMenu().findItem(R.id.nav_signout).setVisible(false);
             navigationView.getMenu().findItem(R.id.nav_signin).setVisible(true);
             txtName.setText("");
-            fotoUsuario.setImageUrl("", null);
+            fotoUsuario.setImageUrl(null, null);
             fotoUsuario.setDefaultImageResId(R.drawable.user);
             return;
         }
 
-        navigationView.getMenu().findItem(R.id.nav_signout).setVisible(true);
-        navigationView.getMenu().findItem(R.id.nav_signin).setVisible(false);
         // Nombre de usuario
-        SharedPreferences pref = getSharedPreferences("com.example.audiolibros_internal", MODE_PRIVATE);
-        String name = pref.getString("name", null);
-        String email = pref.getString("email", null);
+        String name = currentUser.getDisplayName();
+        String email = currentUser.getEmail();
         txtName.setText(name);
         txtEmail.setText(email);
 
@@ -140,7 +193,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Uri urlImagen = currentUser.getPhotoUrl();
         if (urlImagen != null) {
             fotoUsuario.setImageUrl(urlImagen.toString(), VolleySingleton.getInstance(this).getLectorImagenes());
+        } else {
+            fotoUsuario.setDefaultImageResId(R.drawable.user);
         }
+
+        if (result == LOGIN_SUCCESS) {
+            name = name != null ? name : email;
+            name = name.split("@")[0];
+            mostrarMensaje(this, "Bienvenido " + name);
+        }
+
+        navigationView.getMenu().findItem(R.id.nav_signout).setVisible(true);
+        navigationView.getMenu().findItem(R.id.nav_signin).setVisible(false);
     }
 
 
@@ -208,11 +272,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
-                        SharedPreferences pref = getSharedPreferences("com.sacedonmg.cancionesingles_internal", MODE_PRIVATE);
-                        pref.edit().remove("provider").commit();
-                        pref.edit().remove("email").commit();
-                        pref.edit().remove("name").commit();
-                        setUserInfo();
+                        setUserInfo(-1);
                         mostrarMensaje(MainActivity.this, "¡Hasta pronto!");
                         displaySelectedScreen(ACTIVIDAD_TABBED);
                     }

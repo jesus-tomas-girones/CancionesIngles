@@ -14,8 +14,9 @@ import java.io.File;
 
 import static com.sacedonmg.cancionesingles.MainActivity.ACTIVIDAD_CREAR;
 import static com.sacedonmg.cancionesingles.MainActivity.ACTIVIDAD_VISTA_CANCION_LOCAL;
-import static com.sacedonmg.cancionesingles.UtilidadesCanciones.copyFileFromAssets;
-import static com.sacedonmg.cancionesingles.UtilidadesCanciones.generarFicheros;
+import static com.sacedonmg.cancionesingles.Utilidades.isPermissionGranted;
+import static com.sacedonmg.cancionesingles.Utilidades.requestPermission;
+import static com.sacedonmg.cancionesingles.UtilidadesCanciones.crearArchivosEjemplo;
 import static com.sacedonmg.cancionesingles.UtilidadesCanciones.rutaCarpeta;
 import static com.sacedonmg.cancionesingles.UtilidadesCanciones.sincroListReproduccion;
 import static com.sacedonmg.cancionesingles.UtilidadesCanciones.validarEscribirSD;
@@ -77,31 +78,19 @@ public class ListaCanciones extends Fragment {
      * @return
      */
     public boolean crearCarpeta(File carpeta) {
-        boolean resultado = false;
-
-        if (validarEscribirSD()) {
-            carpeta.mkdirs();
-            Log.v(LOG_TAG, "Carpeta cancionesingles creada en la SD");
-
-            if (carpeta.exists()) {
-                String[] ficherosDemo = generarFicheros();
-
-                for (String rutaFicheroDemo : ficherosDemo) {    ///Copiamos todos los ficherosDemo de Assets a la SD
-                    try {
-                        String rutaFicheroSD = rutaCarpeta + rutaFicheroDemo;
-                        copyFileFromAssets(getContext(), rutaFicheroDemo, rutaFicheroSD);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
-                }
-                resultado = true;
-            } else {
-                Log.v(LOG_TAG, "ERROR: Carpeta cancionesingles no creada");
-                resultado = false;
-            }
+        Log.d(LOG_TAG, "crear carpeta cancionesingles");
+        if (!validarEscribirSD()) {
+            return false;
         }
-        return resultado;
+
+        if (isPermissionGranted(android.Manifest.permission.WRITE_EXTERNAL_STORAGE, getActivity())) {
+            carpeta.mkdirs();
+            return crearArchivosEjemplo(getContext());
+        }  else {
+            requestPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE, getActivity());
+        }
+
+        return false;
     }
 
     @Override

@@ -10,7 +10,10 @@
     <string name="nombreFichero">Nombre Fichero:</string>
     <string name="nombreFichero_hint">nombre que identifica a todos los ficheros</string>
     <string name="acerca_de">Acerca De ...</string>
-    <string name="texto_acercade">Esta aplicación ha sido desarrollada como Proyecto Final del Master Desarrollo de Aplicaciones Móviles.</string>
+    <string name="texto_acercade">Esta aplicación ha sido desarrollada como Proyecto Final del <b>Master Desarrollo de Aplicaciones Móviles</b>.</string>
+    <string name="texto_acercade_autores">Autores:</string>
+    <string name="texto_acercade_autor1">Mario Gómez Sacedón</string>
+    <string name="texto_acercade_autor2">Ana María Arrufat Sánchez</string>
     <string name="buscar">Buscar</string>
     <string name="editar">Editar</string>
     <string name="etiquetar">Etiquetar</string>

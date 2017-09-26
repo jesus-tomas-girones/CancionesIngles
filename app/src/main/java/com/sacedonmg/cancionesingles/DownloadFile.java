@@ -52,13 +52,13 @@ class DownloadFile extends AsyncTask<Cancion, Integer, String> {
         if (!progressDialog.isShowing()) progressDialog.show();
     }
 
-    public void download(String strUrl, String nombreFichero, String extension) throws IOException {
+    public void download(String strUrl, String nombreFichero) throws IOException {
         URL url = new URL(strUrl);
         URLConnection conection = url.openConnection();
         conection.connect();
 
         InputStream input = new BufferedInputStream(url.openStream(), 8192);
-        String filePath = BASE_PATH + "/cancionesingles/"+ nombreFichero + extension;
+        String filePath = BASE_PATH + "/cancionesingles/"+ nombreFichero;
 
         Log.d(LOG_TAG, "Downloading: " + cancion.getTitulo());
 
@@ -81,21 +81,22 @@ class DownloadFile extends AsyncTask<Cancion, Integer, String> {
         cancion = params[0];
         String nombreFichero = cancion.getTitulo().replace(" ", "").toLowerCase();
         try {
-            download(cancion.getAudio(), nombreFichero, EXTENSION_AUDIO);
+            download(cancion.getAudio(), nombreFichero + EXTENSION_AUDIO);
             publishProgress(1);
-            download(cancion.getImagen(), nombreFichero, EXTENSION_IMAGEN);
+            download(cancion.getImagen(), nombreFichero + EXTENSION_IMAGEN);
             publishProgress(2);
-            download(cancion.getXml(), nombreFichero, EXTENSION_XML);
+            download(cancion.getXml(), nombreFichero + EXTENSION_XML);
             publishProgress(3);
-            download(cancion.getTxt_original(), nombreFichero, EXTENSION_TXTORIGINAL);
+            download(cancion.getTxt_original(), nombreFichero + EXTENSION_TXTORIGINAL);
             publishProgress(4);
-            download(cancion.getTxt_traducido(), nombreFichero, EXTENSION_TXTTRADUCIDO);
+            download(cancion.getTxt_traducido(), nombreFichero + EXTENSION_TXTTRADUCIDO);
             publishProgress(4);
         } catch (IOException e) {
             error = true;
             Log.e(LOG_TAG, e.getMessage());
         }
 
+        // ...
         return null;
     }
 

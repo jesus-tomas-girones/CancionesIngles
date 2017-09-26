@@ -1,11 +1,9 @@
 package com.sacedonmg.cancionesingles;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -30,7 +28,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 import com.twitter.sdk.android.core.identity.TwitterLoginButton;
 
-import static android.content.Context.MODE_PRIVATE;
+import static com.sacedonmg.cancionesingles.MainActivity.LOGIN_SUCCESS;
+import static com.sacedonmg.cancionesingles.UtilidadesCanciones.mostrarMensaje;
 
 public class LoginActivity extends Fragment {
     private LinearLayout layoutSocialButtons;
@@ -82,7 +81,7 @@ public class LoginActivity extends Fragment {
     }
 
     private void showSnackbar(String message) {
-        Snackbar.make(container, message, Snackbar.LENGTH_SHORT).show();
+        mostrarMensaje(getContext(), message);
     }
 
     private void showProgress() {
@@ -113,20 +112,9 @@ public class LoginActivity extends Fragment {
                 return;
             }
 
-            String name = currentUser.getDisplayName();
-            String email = currentUser.getEmail();
-            String provider = currentUser.getProviders().get(0);
-            SharedPreferences pref = getContext().getSharedPreferences("com.sacedonmg.cancionesingles_internal", MODE_PRIVATE);
-            pref.edit().putString("provider", provider).commit();
-            if (name == null) {
-                name = email;
-            }
-            pref.edit().putString("name", name).commit();
-            if (email != null) {
-                pref.edit().putString("email", email).commit();
-            }
             Intent i = new Intent(getContext(), MainActivity.class);
             i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP| Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            i.putExtra("result", LOGIN_SUCCESS);
             startActivity(i);
         }
     }

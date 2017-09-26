@@ -1,14 +1,22 @@
 package com.sacedonmg.cancionesingles;
 
 
+import android.*;
+import android.Manifest;
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.Gravity;
 import android.widget.Toast;
@@ -33,6 +41,9 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+import static com.sacedonmg.cancionesingles.MainActivity.READ_EXTERNAL_STORAGE_PERMISSION;
+import static com.sacedonmg.cancionesingles.MainActivity.WRITE_EXTERNAL_STORAGE_PERMISSION;
 
 /**
  * Created by MGS on 09/07/2016.
@@ -128,6 +139,31 @@ public final class UtilidadesCanciones {
         return true;
     }
 
+    public static boolean crearArchivosEjemplo(Context context) {
+        boolean resultado;
+        File carpeta = new File(rutaCarpeta);
+
+        if (carpeta.exists()) {
+            Log.v(LOG_TAG, "Carpeta cancionesingles creada en la SD");
+            String[] ficherosDemo = generarFicheros();
+            for (String rutaFicheroDemo : ficherosDemo) {    ///Copiamos todos los ficherosDemo de Assets a la SD
+                try {
+                    String rutaFicheroSD = rutaCarpeta + rutaFicheroDemo;
+                    copyFileFromAssets(context, rutaFicheroDemo, rutaFicheroSD);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            resultado = true;
+        } else {
+            Log.v(LOG_TAG, "ERROR: Carpeta cancionesingles no creada");
+            resultado = false;
+        }
+
+        return resultado;
+    }
+
     /**
      * Copia los ficheros Demo de la carpeta Assets a la SD
      * @param context  el contexto de la aplicación
@@ -175,7 +211,6 @@ public final class UtilidadesCanciones {
             }
         }
     }
-
 
 
     /**
@@ -417,12 +452,19 @@ public final class UtilidadesCanciones {
 
     public static void subirCancionAFireBase (final Cancion cancion, final ProgressDialog progressDialog, final Context mContext) {
         final String titulo = cancion.getNombreFichero().toLowerCase().replace(" ", "") + "/";
-        String localPath = cancion.getAudio();
 
         progressDialog.setMessage("Comprobando si ya existe en el servidor...");
         progressDialog.show();
 
-        checkIfFileExists(titulo, localPath).addOnSuccessListener(new OnSuccessListener<Uri>() {
+        FirebaseSingleton firebaseSingleton = FirebaseSingleton.getInstance();
+        StorageReference storageReference = firebaseSingleton.getStorageReference();
+
+        String localPath = cancion.getAudio();
+        Uri file = Uri.fromFile(new File(localPath));
+        String nodo = titulo + file.getLastPathSegment();
+        StorageReference fileRef = storageReference.child(nodo);
+        Task<Uri> task = fileRef.getDownloadUrl();
+        task.addOnSuccessListener(new OnSuccessListener<Uri>() {
             @Override
             public void onSuccess(Uri uri) {
                 progressDialog.dismiss();
@@ -451,13 +493,13 @@ public final class UtilidadesCanciones {
         }
     }
 
-    private static void borrarArchivoRemoto(StorageReference cancionStorageRef, final String path, final int i) {
+    private static void borrarArchivoRemoto(StorageReference cancionRef, final String path, final int i) {
         Uri uri = Uri.parse(path);
         final String nodo = uri.getLastPathSegment();
         Log.d(LOG_TAG, "borrando fichero " + nodo);
 
         borrandoDatos[i] = true;
-        StorageReference archivoRef = cancionStorageRef.child(nodo);
+        StorageReference archivoRef = cancionRef.child(nodo);
         archivoRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
@@ -484,4 +526,5 @@ public final class UtilidadesCanciones {
         borrarArchivoRemoto(cancionStorageRef, cancion.getImagen(), 4);
         resetVariablesBorrado();
     }
+
 }
