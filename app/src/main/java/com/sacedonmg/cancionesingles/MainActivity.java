@@ -271,12 +271,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.d(LOG_TAG, "onActivityResult");
-        if (requestCode == ACTIVIDAD_CREAR) {
-            int posicion = data != null && data.hasExtra("posicion") ? data.getIntExtra("posicion", -1) : -1;
-            if (resultCode == CREAR_OK) ListaCanciones.adaptador.notifyItemInserted(CancionesVector.getInstance().tamanyo() - 1);
-            else if (resultCode == EDITAR_OK && posicion >= 0) ListaCanciones.adaptador.notifyItemChanged(posicion);
-            else if (resultCode == BORRAR_OK && posicion >= 0) ListaCanciones.adaptador.notifyItemRemoved(posicion);
-        }
+        int posicion = data != null && data.hasExtra("posicion") ? data.getIntExtra("posicion", -1) : -1;
+        if (resultCode == CREAR_OK || resultCode == CANCION_DESCARGADA) ListaCanciones.adaptador.notifyItemInserted(CancionesVector.getInstance().tamanyo() - 1);
+        else if (resultCode == EDITAR_OK && posicion >= 0) ListaCanciones.adaptador.notifyItemChanged(posicion);
+        else if (resultCode == BORRAR_OK && posicion >= 0) ListaCanciones.adaptador.notifyItemRemoved(posicion);
+        if (resultCode == CANCION_DESCARGADA) TabbedActivity.getViewPager().setCurrentItem(SECCION_DESCARGADAS);
     }
 
     @Override

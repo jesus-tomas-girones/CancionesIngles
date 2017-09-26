@@ -215,15 +215,16 @@ public class Cancion {
         this.dificultad = manejadorXML.getCancionXML().getDificultad().ordinal();
         this.etiquetado =  manejadorXML.getCancionXML().getEtiquetado();
         this.letra = manejadorXML.getCancionXML().getLetra();
-        this.user = manejadorXML.getCancionXML().getUser();
+        this.user = "local";
     }
 
+    /**
+     * Leer un XML de una URL para generar un objeto canción
+     */
     public void downloadXML() {
-        final Cancion cancion = this;
         try{
             URL url = new URL(getXml());
             URLConnection conn = url.openConnection();
-            conn.setDoOutput(true);
             conn.connect();
 
             InputStream is = conn.getInputStream();

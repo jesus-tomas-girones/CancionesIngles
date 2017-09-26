@@ -39,6 +39,7 @@ import android.widget.TextView;
 
 import com.android.volley.Cache;
 import com.android.volley.toolbox.NetworkImageView;
+import com.bumptech.glide.util.Util;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseUser;
@@ -156,7 +157,7 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
         builder.setPositiveButton(getString(android.R.string.ok), new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 final DownloadFile task = new DownloadFile(mContext);
-                task.execute(cancion.getAudio(), cancion.getImagen(), cancion.getXml(), cancion.getTxt_original(), cancion.getTxt_traducido());
+                task.execute(cancion);
                 final Thread waitingThread = new Thread(new Runnable() {
                     @Override
                     public void run() {
@@ -169,7 +170,6 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
                                 @Override
                                 public void run() {
                                     CancionesVector cancionesVector = CancionesVector.getInstance();
-                                    cancionesVector.anyade(cancion);
                                     ListaCanciones.adaptador.notifyItemInserted(cancionesVector.tamanyo() - 1);
                                     setResult(CANCION_DESCARGADA);
                                     finish();
@@ -233,32 +233,8 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
         finish();
     }
 
-    boolean[] borrandoDatos = {true, true, true, true, true};
-    private void borrarArchivoRemoto(StorageReference cancionStorageRef, final String path, final int i) {
-        Uri uri = Uri.parse(path);
-        final String nodo = uri.getLastPathSegment().toString();
-        Log.d(LOG_TAG, "borrando fichero " + nodo);
-
-        StorageReference archivoRef = cancionStorageRef.child(nodo.toLowerCase());
-        archivoRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                Log.d(LOG_TAG, "onSuccess: "+ nodo);
-                borrandoDatos[i] = false;
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception exception) {
-                Log.d(LOG_TAG, "onFailure: " + nodo);
-                borrandoDatos[i] = false;
-            }
-        });
-    }
-
     private void borrarCancionRemota(final int id) {
-        Cancion cancion = getCancionById(id);
-        Uri uri = Uri.parse(cancion.getAudio());
-        final String nombre = uri.getLastPathSegment().split("\\.")[0];
+        final Cancion cancion = getCancionById(id);
 
         final ProgressDialog progressDialog = new ProgressDialog(mContext);
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
@@ -266,22 +242,17 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
         progressDialog.setTitle("Borrando " + cancion.getTitulo());
         progressDialog.show();
 
-        StorageReference cancionStorageRef = FirebaseSingleton.getInstance().getStorageReference().child(nombre.toLowerCase());
-        borrarArchivoRemoto(cancionStorageRef,cancion.getAudio() , 0);
-        borrarArchivoRemoto(cancionStorageRef, cancion.getXml(), 1);
-        borrarArchivoRemoto(cancionStorageRef, cancion.getTxt_original(), 2);
-        borrarArchivoRemoto(cancionStorageRef, cancion.getTxt_traducido(), 3);
-        borrarArchivoRemoto(cancionStorageRef, cancion.getImagen(), 4);
+        UtilidadesCanciones.borrarCancionRemota(cancion);
 
         final Thread waitingThread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
                     int count = 5;
-
                     while(count > 0) {
                         count = 0;
-                        for (int i = 0; i < borrandoDatos.length; i++) count = borrandoDatos[i] ? count + 1 : count;
+                        for (int i = 0; i < UtilidadesCanciones.borrandoDatos.length; i++)
+                            count = UtilidadesCanciones.borrandoDatos[i] ? count + 1 : count;
 
                         final int countToShow = count;
                         runOnUiThread(new Runnable() {
@@ -304,6 +275,7 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
                     e.printStackTrace();
                 }
 
+                String nombre = cancion.getTitulo().replace(" ", "").toLowerCase();
                 DatabaseReference cancionesRef = FirebaseSingleton.getInstance().getCancionesReference();
                 cancionesRef.child(nombre).removeValue();
                 finish();
@@ -518,9 +490,6 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
      */
     public void inicializaVistas(){
         Log.d(LOG_TAG, "inicializaVistas");
-        fTraducida.setText("");
-        fOriginal.setText("");
-        fauxiliar.setText("");
 
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
             titulo.setVisibility(View.VISIBLE);
@@ -555,6 +524,9 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
         bDescubrir.setVisibility(View.GONE);
         bRepetirFrase.setVisibility(View.GONE);
 
+        fTraducida.setText("");
+        fOriginal.setText("");
+        fauxiliar.setText("");
         pulsadoNormal = false;
     }
 

@@ -56,7 +56,6 @@ public final class UtilidadesCanciones {
     // static boolean subiendoDatos = false;
     static boolean[] subiendoDatos = new boolean[5];
     static boolean[] errorSubiendoDatos = new boolean[5];
-    static Boolean borrandoDatos = false;
 
     /**
      * Metodo para mostrar mensajes (Toast)
@@ -266,34 +265,15 @@ public final class UtilidadesCanciones {
     }
 
 
-    /***
-     * Obtenemos el valor de la dificultad a través de su texto
-     * @param dificultad
-     * @return
+    /*
+     *  Subir fichero a Firebase
      */
-    static Float obtenerValorDificultad(String dificultad){
-        float valor = 1;
-        switch (dificultad){
-            case "Medio":
-                valor = 2;
-                break;
-            case "Dificil":
-                valor = 3;
-                break;
-            case "Facil":
-            default:
-                valor=1;
-                break;
-        }
-        return valor;
-    }
-
     private static void updateProgressDialog(ProgressDialog progressDialog, Context mContext) {
         int count = 0;
         int errores = 0;
         for (int i = 0; i < subiendoDatos.length; i++) {
-            count = !subiendoDatos[i] ? count : count + 1 ;
-            errores = errorSubiendoDatos[i] ? errores + 1 : errores;
+            if (subiendoDatos[i]) count++;
+            if (errorSubiendoDatos[i]) errores++;
         }
 
         progressDialog.setMessage("Quedan " + count + "/5 ficheros");
@@ -328,8 +308,9 @@ public final class UtilidadesCanciones {
         Log.d(LOG_TAG, "subiendo fichero " + localPath);
 
         Uri file = Uri.fromFile(new File(localPath));
-        final String fileName = file.getLastPathSegment();
+        final String fileName = file.getLastPathSegment().toLowerCase();
 
+        subiendoDatos[index] = true;
         StorageReference fileStorageRef = cancionStorageRef.child(fileName);
         UploadTask uploadTask = fileStorageRef.putFile(file);
         uploadTask.addOnFailureListener(new OnFailureListener() {
@@ -346,28 +327,16 @@ public final class UtilidadesCanciones {
                 Log.d(LOG_TAG, "onSuccess " + fileName);
                 subiendoDatos[index] = false;
                 errorSubiendoDatos[index] = false;
-                updateProgressDialog(progressDialog, mContext);
+
                 Uri downloadUrl = taskSnapshot.getDownloadUrl();
-                String nodo = getNodoByFilename(fileName);
+                String nodo = getNodoByFilename(fileName); Log.d(LOG_TAG, "getNodoByFileName -> " + nodo);
 
                 if (nodo.compareTo("") != 0) {
                     DatabaseReference nodoRef = fileDataBaseRef.child(nodo);
                     nodoRef.setValue(downloadUrl.toString());
-                    nodoRef = fileDataBaseRef.child("user");
-                    nodoRef.setValue(FirebaseSingleton.getInstance().getCurrentUser().getUid());
                 }
 
-            }
-        }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
-                subiendoDatos[index] = true;
-            }
-        }).addOnPausedListener(new OnPausedListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onPaused(UploadTask.TaskSnapshot taskSnapshot) {
-                Log.d(LOG_TAG, "onPaused " + fileName);
-                subiendoDatos[index] = true;
+                updateProgressDialog(progressDialog, mContext);
             }
         });
     }
@@ -425,7 +394,8 @@ public final class UtilidadesCanciones {
                     cancionDatabaseRef.child("dificultad").setValue(cancion.getDificultad().ordinal());
                     cancionDatabaseRef.child("genero").setValue(cancion.getGenero().ordinal());
                     cancionDatabaseRef.child("id").setValue(cancion.getId());
-                    cancionDatabaseRef.child("user").setValue(cancion.getUser());
+                    String uid = FirebaseSingleton.getInstance().getCurrentUser().getUid();
+                    cancionDatabaseRef.child("user").setValue(uid);
 
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -436,7 +406,6 @@ public final class UtilidadesCanciones {
         waitingThread.start();
     }
 
-
     private static Task<Uri> checkIfFileExists(String titulo, String localPath) {
         FirebaseSingleton firebaseSingleton = FirebaseSingleton.getInstance();
         StorageReference storageReference = firebaseSingleton.getStorageReference();
@@ -446,14 +415,12 @@ public final class UtilidadesCanciones {
         return fileRef.getDownloadUrl();
     }
 
-
     public static void subirCancionAFireBase (final Cancion cancion, final ProgressDialog progressDialog, final Context mContext) {
         final String titulo = cancion.getNombreFichero().toLowerCase().replace(" ", "") + "/";
         String localPath = cancion.getAudio();
 
         progressDialog.setMessage("Comprobando si ya existe en el servidor...");
         progressDialog.show();
-
 
         checkIfFileExists(titulo, localPath).addOnSuccessListener(new OnSuccessListener<Uri>() {
             @Override
@@ -467,5 +434,54 @@ public final class UtilidadesCanciones {
                 subirFicheros(cancion, progressDialog, mContext);
             }
         });
+    }
+
+
+    /*
+     *  Eliminar canción de Firebase
+     */
+    static boolean[] borrandoDatos = {false, false, false, false, false};
+    static boolean[] errorBorrandoDatos = {false, false, false, false, false};
+
+
+    private static void resetVariablesBorrado () {
+        for (int i = 0; i < borrandoDatos.length; i++) {
+            borrandoDatos[i] = false;
+            errorBorrandoDatos[i] = false;
+        }
+    }
+
+    private static void borrarArchivoRemoto(StorageReference cancionStorageRef, final String path, final int i) {
+        Uri uri = Uri.parse(path);
+        final String nodo = uri.getLastPathSegment();
+        Log.d(LOG_TAG, "borrando fichero " + nodo);
+
+        borrandoDatos[i] = true;
+        StorageReference archivoRef = cancionStorageRef.child(nodo);
+        archivoRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Log.d(LOG_TAG, "onSuccess: "+ nodo);
+                borrandoDatos[i] = false;
+                errorBorrandoDatos[i] = true;
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                Log.d(LOG_TAG, "onFailure: " + nodo, exception);
+                borrandoDatos[i] = false;
+                errorBorrandoDatos[i] = true;
+            }
+        });
+    }
+
+    public static void borrarCancionRemota(Cancion cancion) {
+        StorageReference cancionStorageRef = FirebaseSingleton.getInstance().getStorageReference();
+        borrarArchivoRemoto(cancionStorageRef, cancion.getAudio() , 0);
+        borrarArchivoRemoto(cancionStorageRef, cancion.getXml(), 1);
+        borrarArchivoRemoto(cancionStorageRef, cancion.getTxt_original(), 2);
+        borrarArchivoRemoto(cancionStorageRef, cancion.getTxt_traducido(), 3);
+        borrarArchivoRemoto(cancionStorageRef, cancion.getImagen(), 4);
+        resetVariablesBorrado();
     }
 }
