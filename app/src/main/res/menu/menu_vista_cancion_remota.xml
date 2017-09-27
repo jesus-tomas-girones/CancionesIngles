@@ -6,7 +6,7 @@
         android:title="@string/download"
         android:icon="@drawable/ic_action_cloud_download"
         android:orderInCategory="10"
-        app:showAsAction="always|withText"/>
+        app:showAsAction="always"/>
     <item
         android:id="@+id/accion_borrar"
         android:title="@string/borrar"

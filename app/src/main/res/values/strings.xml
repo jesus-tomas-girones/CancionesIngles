@@ -18,7 +18,10 @@
     <string name="editar">Editar</string>
     <string name="etiquetar">Etiquetar</string>
     <string name="borrar">Borrar</string>
-    <string name="titulo_borrar">Borrado de Canción</string>
+    <string name="titulo_borrar">Borrar canción</string>
+    <string name="mensaje_borrar_local">La canción se eliminará de la memoria local, ¿quiere continuar?</string>
+    <string name="mensaje_borrar_remota">La canción se eliminará del servidor, ¿quiere continuar?</string>
+    <string name="no_permiso_borrar">"No tiene permisos para borrar esta canción"</string>
     <string name="mensaje_borrar">¿Estas seguro que quieres eliminar esta canción?</string>
     <string name="guardar">Guardar</string>
     <string name="cancelar">Cancelar</string>
@@ -69,7 +72,6 @@
     <string name="sign_in">Iniciar sesión</string>
     <string name="tabbed_activity">Canciones</string>
     <string name="preferences">Preferencias</string>
-
 
 
     <string name="facebook_application_id">133763073921647</string>

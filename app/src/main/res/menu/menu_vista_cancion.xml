@@ -6,19 +6,19 @@
         android:title="@string/editar"
         android:icon="@drawable/ic_action_edit"
         android:orderInCategory="10"
-        app:showAsAction="always|withText"/>
+        app:showAsAction="always"/>
     <item
         android:id="@+id/accion_subir"
         android:title="@string/upload"
         android:icon="@drawable/ic_action_upload"
         android:orderInCategory="12"
-        app:showAsAction="ifRoom|withText"/>
+        app:showAsAction="ifRoom"/>
     <item
         android:id="@+id/accion_etiquetar"
         android:title="@string/etiquetar"
         android:icon="@drawable/ic_action_label"
         android:orderInCategory="15"
-        app:showAsAction="ifRoom|withText"/>
+        app:showAsAction="ifRoom"/>
     <item
         android:id="@+id/accion_borrar"
         android:title="@string/borrar"

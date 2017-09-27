@@ -83,26 +83,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        boolean sincronizar = false;
-        if(requestCode == READ_EXTERNAL_STORAGE_PERMISSION) {
+        if(requestCode == READ_EXTERNAL_STORAGE_PERMISSION ||requestCode == WRITE_EXTERNAL_STORAGE_PERMISSION) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED && validarLeerSD()) {
                 File carpeta = new File(rutaCarpeta);
                 if (!carpeta.exists()) {  //Es la primera vez que se instala la aplicación.
                     carpeta.mkdirs();
-                    sincronizar  = crearArchivosEjemplo(this);
-                } else { //ya existia la carpeta
-                    sincronizar = true;
+                    crearArchivosEjemplo(this);
                 }
             }
         }
 
-        if(requestCode == WRITE_EXTERNAL_STORAGE_PERMISSION) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                sincronizar = crearArchivosEjemplo(this);
-            }
-        }
-
-        if (sincronizar) sincroListReproduccion();
+        sincroListReproduccion();
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
@@ -124,9 +115,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setSupportActionBar(toolbar);
 
         tabLayout = (TabLayout) findViewById(R.id.tabs);
-
-        // requestPermission(Manifest.permission.READ_EXTERNAL_STORAGE);
-        // requestPermission(Manifest.permission.READ_EXTERNAL_STORAGE);
 
         // Floating button
         floatingActionButton = (FloatingActionButton) findViewById(R.id.fab);

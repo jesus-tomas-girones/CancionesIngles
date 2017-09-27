@@ -80,6 +80,31 @@
         android:background="#ffffff"
         />
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:layout_marginTop="50dp"
+        android:layout_below="@+id/f_traducida"
+        android:orientation="vertical">
+        <TextView
+            android:id="@+id/tv_palabraOculta"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="Palabra oculta: "
+            android:visibility="gone" />
+        <EditText
+            android:id="@+id/et_palabraOculta"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:singleLine="true"
+            android:hint="Palabra oculta"
+            android:visibility="gone">
+            <requestFocus />
+        </EditText>
+    </LinearLayout>
 
     <TableLayout
         android:layout_width="match_parent"
@@ -98,8 +123,6 @@
                 android:text="@string/lectura"
                 android:background="@xml/miboton"
                 style="@style/button_text" />
-
-
             <Button
                 android:id="@+id/bnormal"
                 android:layout_width="wrap_content"
@@ -107,9 +130,7 @@
                 android:onClick="sePulsaNormal"
                 android:text="@string/normal"
                 android:background="@xml/miboton"
-                style="@style/button_text"
-                />
-
+                style="@style/button_text" />
             <Button
                 android:id="@+id/brepetir"
                 android:layout_width="wrap_content"
@@ -117,10 +138,55 @@
                 android:onClick="sePulsaRepetir"
                 android:text="@string/repetir"
                 android:background="@xml/miboton"
+                style="@style/button_text"/>
+            <Button
+                android:id="@+id/brellenar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="sePulsaRellenar"
+                android:text="@string/rellenar"
+                android:background="@xml/miboton"
                 style="@style/button_text"
-                />
-
+                android:textSize="15dp"/>
+        </TableRow>
+        <TableRow>
+            <Button
+                android:id="@+id/bcomprobar"
+                style="@style/button_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@xml/miboton"
+                android:text="Comprobar"
+                android:textSize="15dp"
+                android:visibility="gone" />
+            <Button
+                android:id="@+id/bdescubrir"
+                style="@style/button_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@xml/miboton"
+                android:text="Descubrir"
+                android:textSize="15dp"
+                android:visibility="gone" />
+            <Button
+                android:id="@+id/brepetirfrase"
+                style="@style/button_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@xml/miboton"
+                android:text="Repetir"
+                android:textSize="15dp"
+                android:visibility="gone" />
+            <Button
+                android:id="@+id/bseguir"
+                style="@style/button_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@xml/miboton"
+                android:text="Continuar"
+                android:textSize="15dp"
+                android:enabled="false"
+                android:visibility="gone" />
         </TableRow>
     </TableLayout>
-
 </RelativeLayout>

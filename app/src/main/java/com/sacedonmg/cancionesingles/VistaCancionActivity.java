@@ -25,7 +25,9 @@ import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeech.OnInitListener;
 import android.speech.tts.UtteranceProgressListener;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.MenuItemHoverListener;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -94,6 +96,7 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
     private boolean pulsadoNormal = false;
     private int contador = 0;
     private boolean estaHablando, versionLollipop;
+    private int posicion;
 
     private int source;
     private Context mContext;
@@ -295,10 +298,12 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
      * @param id
      */
     public void borrarCancion(final int id){
+        int mensaje = R.string.mensaje_borrar_local;
         if (source == ACTIVIDAD_VISTA_CANCION_REMOTA) {
+            mensaje = R.string.mensaje_borrar_remota;
             FirebaseUser currentUser = FirebaseSingleton.getInstance().getCurrentUser();
             if (currentUser == null || cancion.getUser() == null || cancion.getUser().compareTo(currentUser.getUid()) != 0) {
-                mostrarMensaje(this, "No tiene permisos para borrar esta canción");
+                mostrarMensaje(this, mContext.getResources().getString(R.string.no_permiso_borrar));
                 return;
             }
         }
@@ -306,6 +311,7 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
         new AlertDialog.Builder(this)
                 .setTitle(R.string.titulo_borrar)
                 .setMessage(R.string.mensaje_borrar)
+                .setMessage(mensaje)
                 .setPositiveButton(R.string.confirmar, new DialogInterface.OnClickListener(){
                     public void onClick(DialogInterface dialog, int whichButton){
                         if (source == ACTIVIDAD_VISTA_CANCION_REMOTA) {
@@ -714,12 +720,24 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
                 }
             });
 
+            et_palabraOculta.setOnKeyListener(new View.OnKeyListener() {
+                public boolean onKey(View v, int keyCode, KeyEvent event) {
+                    Log.d(LOG_TAG, "onKey");
+                    if (event.getAction() == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
+                        bComprobar.callOnClick();
+                        return true;
+                    }
+                    return false;
+                }
+            });
+
             View.OnClickListener onClickListener = new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     switch (view.getId()) {
                         case R.id.bseguir:
                             goOnClicked = true;
+                            et_palabraOculta.setText("");
                             break;
                         case R.id.bdescubrir:
                             fOriginal.setText(cancion.getLetra().get(fraseActual).getFraseOriginal());
@@ -832,7 +850,7 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
             });
 
             try {
-                while(mediaPlayer.getCurrentPosition() < cancion.getLetra().get(contador).getTiempoIni() && corriendo ){
+                while(corriendo && mediaPlayer.getCurrentPosition() < cancion.getLetra().get(contador).getTiempoIni() ){
                     sleep(1);
                 }
             } catch (Exception e) {
@@ -840,7 +858,7 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
             }
 
 
-            while (mediaPlayer.getCurrentPosition() <= frase.getTiempoFin() && corriendo) {
+            while (corriendo && mediaPlayer.getCurrentPosition() <= frase.getTiempoFin()) {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -861,7 +879,7 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
                 }
             });
 
-            mediaPlayer.pause();
+            if (corriendo) mediaPlayer.pause();
 
             try {
                 while (!goOnClicked) {
@@ -876,7 +894,8 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
                 Log.e(LOG_TAG, "Error ModoRellenar sleep2:" + e);
             }
 
-            mediaPlayer.start();
+
+            if (corriendo) mediaPlayer.start();
             contador++;
         }
 
@@ -1278,6 +1297,7 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
             return;
         }
 
+        corriendo = false;
         mostrarMensaje(mContext, "Pulse otra vez para volver a la lista");
 
         if (tts != null) tts.stop();
@@ -1289,14 +1309,17 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
             }
 
             if (miThread != null && miThread.isAlive()) {
-                miThread.stop();
+
+                miThread.getThreadGroup().interrupt();
+                miThread = null;
             }
 
+        } catch (UnsupportedOperationException e) {
+            Log.e(LOG_TAG, "onStop:MediaPlayer", e);
         } catch (Exception e){
             Log.e(LOG_TAG, "onStop:MediaPlayer", e);
         }
 
-        corriendo = false;
         ponInfoCancion((int)id, false);
     }
 
@@ -1304,7 +1327,6 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
     //Guardar el estado de la Actividad VistaCancion
     @Override
     public void onSaveInstanceState(Bundle estadoGuardado){
-        Log.e(LOG_TAG, "onSaveInstanceState");
         super.onSaveInstanceState(estadoGuardado);
         if(mediaPlayer != null){
             int pos = mediaPlayer.getCurrentPosition();
@@ -1313,28 +1335,24 @@ public class VistaCancionActivity extends AppCompatActivity implements OnInitLis
 
         int cont = contador;
         estadoGuardado.putInt("contador", cont);
-        estadoGuardado.putBoolean("pulsadoNormal",pulsadoNormal);
-        estadoGuardado.putString("modoRepro",modoRepro);
-        //estadoGuardado.putBoolean("iniciadoVistas",iniciadoVistas);
+        estadoGuardado.putBoolean("pulsadoNormal", pulsadoNormal);
+        estadoGuardado.putString("modoRepro", modoRepro);
         estadoGuardado.putBoolean("reinicio",true);
+        estadoGuardado.putBoolean("corriendo",corriendo);
     }
 
+
     @Override
-    public void onRestoreInstanceState(Bundle estadoGuardado) {
-        Log.e(LOG_TAG, "onRestoreInstanceState");
+    public void onRestoreInstanceState(Bundle estadoGuardado){
+        Log.d(LOG_TAG, "onRestoreInstanceState");
         super.onRestoreInstanceState(estadoGuardado);
-        if(estadoGuardado != null){
+        if (estadoGuardado != null){
             contador = estadoGuardado.getInt("contador");
             pulsadoNormal = estadoGuardado.getBoolean("pulsadoNormal");
             modoRepro = estadoGuardado.getString("modoRepro");
-            //iniciadoVistas = estadoGuardado.getBoolean("iniciadoVistas");
-            //reinicio = estadoGuardado.getBoolean("reinicio");
-            if(mediaPlayer!= null) {
-                int pos = estadoGuardado.getInt("posicion");
-                mediaPlayer.seekTo(pos);
-            }
+            corriendo = estadoGuardado.getBoolean("corriendo");
+            posicion = estadoGuardado.getInt("posicion");
         }
-
     }
 }
 

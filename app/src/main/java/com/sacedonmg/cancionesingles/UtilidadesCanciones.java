@@ -259,6 +259,7 @@ public final class UtilidadesCanciones {
             Log.d(LOG_TAG, nombreFichero);
         }
 
+        ListaCanciones.adaptador.notifyDataSetChanged();
     }
 
     /**
