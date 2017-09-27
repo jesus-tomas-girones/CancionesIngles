@@ -10,12 +10,18 @@
     <string name="nombreFichero">Nombre Fichero:</string>
     <string name="nombreFichero_hint">nombre que identifica a todos los ficheros</string>
     <string name="acerca_de">Acerca De ...</string>
-    <string name="texto_acercade">Esta aplicación ha sido desarrollada como Proyecto Final del Master Desarrollo de Aplicaciones Móviles.</string>
+    <string name="texto_acercade">Esta aplicación ha sido desarrollada como Proyecto Final del <b>Master Desarrollo de Aplicaciones Móviles</b>.</string>
+    <string name="texto_acercade_autores">Autores:</string>
+    <string name="texto_acercade_autor1">Mario Gómez Sacedón</string>
+    <string name="texto_acercade_autor2">Ana María Arrufat Sánchez</string>
     <string name="buscar">Buscar</string>
     <string name="editar">Editar</string>
     <string name="etiquetar">Etiquetar</string>
     <string name="borrar">Borrar</string>
-    <string name="titulo_borrar">Borrado de Canción</string>
+    <string name="titulo_borrar">Borrar canción</string>
+    <string name="mensaje_borrar_local">La canción se eliminará de la memoria local, ¿quiere continuar?</string>
+    <string name="mensaje_borrar_remota">La canción se eliminará del servidor, ¿quiere continuar?</string>
+    <string name="no_permiso_borrar">"No tiene permisos para borrar esta canción"</string>
     <string name="mensaje_borrar">¿Estas seguro que quieres eliminar esta canción?</string>
     <string name="guardar">Guardar</string>
     <string name="cancelar">Cancelar</string>
@@ -41,6 +47,40 @@
     <string name="normal">Normal</string>
     <string name="lectura">Lectura</string>
     <string name="repetir">Repetir</string>
+    <string name="rellenar">Rellenar</string>
     <string name="confirmar">Confirmar</string>
+    <string name="title_activity_tabbed">Canciones ingles</string>
+    <string name="section_format">Hello World from section: %1$d</string>
+
+    <string name="section_downloaded">Descargadas</string>
+    <string name="section_availables">Disponibles</string>
+
+    <string name="download">Descargar</string>
+    <string name="upload">Subir</string>
+
+    <string name="login_msg_email">Correo electrónico</string>
+    <string name="login_msg_password">Contraseña</string>
+    <string name="login_msg_signin">Iniciar sesión</string>
+    <string name="login_msg_signup">Registrarse</string>
+    <string name="error_connection_failed">Error, fallo en la conexión </string>
+    <string name="error_google">Error al iniciar sesión con Google</string>
+    <string name="error_empty">Por favor ingrese todos los campos</string>
+    <string name="error_cancelled">Error, inicio de sesión cancelado</string>
+
+    <!-- Navigation drawer menu-->
+    <string name="sign_out">Cerrar sesión</string>
+    <string name="sign_in">Iniciar sesión</string>
+    <string name="tabbed_activity">Canciones</string>
+    <string name="preferences">Preferencias</string>
+
+
+    <string name="facebook_application_id">133763073921647</string>
+    <string name="facebook_login_protocol_scheme">fb133763073921647</string>
+    <string name="title_activity_navigation_drawer">NavigationDrawerActivity</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="title_activity_rellenar_palabras">RellenarPalabrasActivity</string>
+
 
 </resources>

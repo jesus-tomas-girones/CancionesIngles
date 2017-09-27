@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/loginContainer"
+    android:padding="@dimen/activity_horizontal_margin"
+    tools:context=".LoginActivity">
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/wrapperEmail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/wrapperPassword">
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/login_msg_email"
+            android:inputType="textEmailAddress"
+            android:id="@+id/editTxtEmail" />
+    </android.support.design.widget.TextInputLayout>
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/wrapperPassword"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/layoutEmailButtons">
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/login_msg_password"
+            android:inputType="textPassword"
+            android:id="@+id/editTxtPassword" />
+    </android.support.design.widget.TextInputLayout>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:id="@+id/layoutEmailButtons">
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/login_msg_signin"
+            android:padding="8dp"
+            android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:background="#d0021b"
+            android:textColor="#fff"
+            android:id="@+id/btnSignin" />
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/login_msg_signup"
+            android:padding="8dp"
+            android:background="#d0021b"
+            android:textColor="#fff"
+            android:id="@+id/btnSignup"/>
+    </LinearLayout>
+    <!--<LinearLayout-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:orientation="vertical"-->
+        <!--android:layout_centerHorizontal="true"-->
+        <!--android:layout_below="@+id/layoutEmailButtons"-->
+        <!--android:id="@+id/layoutSocial">-->
+        <!--<com.google.android.gms.common.SignInButton-->
+            <!--android:id="@+id/btnGoogle"-->
+            <!--android:layout_margin="8dp"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content" />-->
+        <!--<com.facebook.login.widget.LoginButton-->
+            <!--android:id="@+id/btnFacebook"-->
+            <!--android:padding="@dimen/activity_horizontal_margin"-->
+            <!--android:layout_margin="8dp"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"/>-->
+    <!--</LinearLayout>-->
+    <ProgressBar
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/progressBar"
+        android:layout_centerInParent="true"
+        android:visibility="gone" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="?android:attr/alertDialogIcon"
+        android:layout_alignBottom="@+id/verifyEmail"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:id="@+id/verifyEmailImage" />
+
+    <TextView
+        android:text="Por favor, verifique su correo antes de continuar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="55dp"
+        android:id="@+id/verifyEmail"
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@+id/verifyEmailImage"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+</RelativeLayout>

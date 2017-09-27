@@ -4,89 +4,203 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.support.design.widget.NavigationView;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.view.ViewPager;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
+
+import com.android.volley.toolbox.NetworkImageView;
+import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.io.File;
-import java.util.Vector;
-import static com.sacedonmg.cancionesingles.UtilidadesCanciones.*;
 
-public class MainActivity extends AppCompatActivity {
+import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
+import static com.sacedonmg.cancionesingles.Utilidades.isPermissionGranted;
+import static com.sacedonmg.cancionesingles.Utilidades.requestPermission;
+import static com.sacedonmg.cancionesingles.UtilidadesCanciones.crearArchivosEjemplo;
+import static com.sacedonmg.cancionesingles.UtilidadesCanciones.mostrarMensaje;
+import static com.sacedonmg.cancionesingles.UtilidadesCanciones.rutaCarpeta;
+import static com.sacedonmg.cancionesingles.UtilidadesCanciones.sincroListReproduccion;
+import static com.sacedonmg.cancionesingles.UtilidadesCanciones.validarLeerSD;
 
-    public static Canciones vectorCanciones = new CancionesVector();
-    private static final String LOG_TAG = "MainActivity";
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
+    private String LOG_TAG = "CI::MainActivity";
 
-    private RecyclerView recyclerView;
-    public AdaptadorCanciones adaptador;
-    private RecyclerView.LayoutManager layoutManager;
+    // REQUEST CODES
+    public static int ACTIVIDAD_VISTA_CANCION_LOCAL = 4567;
+    public static int ACTIVIDAD_VISTA_CANCION_REMOTA = 4568;
+    public static int ACTIVIDAD_CREAR = 5678;
+    public static int ACTIVIDAD_EDICION = 1234;
+    public static int ACTIVIDAD_ETIQUETAR = 2345;
+    public static final int ACTIVIDAD_LOGIN = 2346;
+    public static final int ACTIVIDAD_TABBED = 2347;
+    public static final int WRITE_EXTERNAL_STORAGE_PERMISSION = 3000;
+    public static final int READ_EXTERNAL_STORAGE_PERMISSION = 3001;
+
+    // RESULT CODES
+    public static int CANCION_DESCARGADA = 1001;
+    public static int EDITAR_OK = 1002;
+    public static int BORRAR_OK = 1002;
+    public static int CREAR_OK = 1002;
+    public static int LOGIN_SUCCESS = 1003;
+
+    public static final int SECCION_DESCARGADAS = 0;
+    public static final int SECCION_REMOTAS = 1;
+
+    private final int SECTIONS[] = {
+            R.string.section_downloaded,
+            R.string.section_availables,
+    };
+
+    private Context context;
+    private FloatingActionButton floatingActionButton;
+    private static TabLayout tabLayout;
+    private NavigationView navigationView;
+
+    public static TabLayout getTabLayout() {
+        return tabLayout;
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if(requestCode == READ_EXTERNAL_STORAGE_PERMISSION ||requestCode == WRITE_EXTERNAL_STORAGE_PERMISSION) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED && validarLeerSD()) {
+                File carpeta = new File(rutaCarpeta);
+                if (!carpeta.exists()) {  //Es la primera vez que se instala la aplicación.
+                    carpeta.mkdirs();
+                    crearArchivosEjemplo(this);
+                }
+            }
+        }
+
+        sincroListReproduccion();
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    private void sincronizarContenidoSD() {
+        if (isPermissionGranted(READ_EXTERNAL_STORAGE, this)) {
+            sincroListReproduccion();
+            ListaCanciones.adaptador.notifyDataSetChanged();
+        } else  {
+          requestPermission(READ_EXTERNAL_STORAGE, this);
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
+        context = this;
+        setContentView(R.layout.activity_navigation_drawer);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setImageResource(android.R.drawable.ic_popup_sync);
-        fab.setOnClickListener(new View.OnClickListener() {
+        tabLayout = (TabLayout) findViewById(R.id.tabs);
+
+        // Floating button
+        floatingActionButton = (FloatingActionButton) findViewById(R.id.fab);
+        floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                sincroListReproduccion();
-                inicializaVista();
+                ViewPager viewPager = TabbedActivity.getViewPager();
+                if (viewPager == null) {
+                    return;
+                }
 
+                if (viewPager.getCurrentItem() == SECCION_DESCARGADAS) {
+                    sincronizarContenidoSD();
+                }
+
+                if (viewPager.getCurrentItem() == SECCION_REMOTAS) {
+                    ListaCancionesRemoto.adaptador.notifyDataSetChanged();
+                }
             }
         });
 
-        inicializaDatos();
-        inicializaVista();
+        // Navigation drawer
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.setDrawerListener(toggle);
+        toggle.syncState();
+
+        navigationView = (NavigationView) findViewById( R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
 
 
+        Bundle bundle = getIntent().getExtras();
+        int result = bundle != null ? bundle.getInt("result", -1) : -1;
+        setUserInfo(result);
+
+        int screen = bundle != null ? bundle.getInt("SCREEN", -1) : -1;
+        screen = screen != -1 ? screen : ACTIVIDAD_TABBED;
+        displaySelectedScreen(screen);
+    }
+
+    private void setUserInfo(int result) {
+        View headerLayout = navigationView.getHeaderView(0);
+        TextView txtName = (TextView) headerLayout.findViewById(R.id.txtName);
+        TextView txtEmail = (TextView) headerLayout.findViewById(R.id.txtEmail);
+        NetworkImageView fotoUsuario = (NetworkImageView) headerLayout.findViewById(R.id.imageView);
+
+        FirebaseUser currentUser = FirebaseSingleton.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            navigationView.getMenu().findItem(R.id.nav_signout).setVisible(false);
+            navigationView.getMenu().findItem(R.id.nav_signin).setVisible(true);
+            txtName.setText("");
+            fotoUsuario.setImageUrl(null, null);
+            fotoUsuario.setDefaultImageResId(R.drawable.user);
+            return;
+        }
+
+        // Nombre de usuario
+        String name = currentUser.getDisplayName();
+        String email = currentUser.getEmail();
+        txtName.setText(name);
+        txtEmail.setText(email);
+
+        // Foto de usuario
+        Uri urlImagen = currentUser.getPhotoUrl();
+        if (urlImagen != null) {
+            fotoUsuario.setImageUrl(urlImagen.toString(), VolleySingleton.getInstance(this).getLectorImagenes());
+        } else {
+            fotoUsuario.setDefaultImageResId(R.drawable.user);
+        }
+
+        if (result == LOGIN_SUCCESS) {
+            name = name != null ? name : email;
+            name = name.split("@")[0];
+            mostrarMensaje(this, "Bienvenido " + name);
+        }
+
+        navigationView.getMenu().findItem(R.id.nav_signout).setVisible(true);
+        navigationView.getMenu().findItem(R.id.nav_signin).setVisible(false);
     }
 
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            lanzarPreferencias();
-            return true;
-        }
-        if(id == R.id.nuevo){
-            lanzarNuevo();
-            return true;
-        }
-        if (id == R.id.acercaDe){
-            lanzarAcercaDe();
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
 
     /***
      * Mostrar preferencias
@@ -113,10 +227,9 @@ public class MainActivity extends AppCompatActivity {
                 .setMessage(R.string.mensaje_nuevo)
                 .setPositiveButton(R.string.confirmar, new DialogInterface.OnClickListener(){
                     public void onClick(DialogInterface dialog, int whichButton){
-
-                        Intent i = new Intent (MainActivity.this, EdicionNuevaCancionActivity.class);
+                        Intent i = new Intent (context, EdicionNuevaCancionActivity.class);
                         i.putExtra("editar",false);
-                        startActivityForResult(i,5678);
+                        startActivityForResult(i, ACTIVIDAD_CREAR);
                     }
 
                 })
@@ -124,111 +237,103 @@ public class MainActivity extends AppCompatActivity {
                 .show();
     }
 
-
-
-
-     /** Inicializar datos de la Aplicación:
-     *   Si es la primera vez (instala la aplicación), guarda en la SD los ficheros para una canción DEMO.
-     *   Carga la lista de reproducción en función de los xml que encuentra en la carpeta SD "cancionesingles"
-     */
-    public void inicializaDatos (){
-
-        boolean sincronizar = false;
-
-        if(validarLeerSD()){
-
-            File carpeta = new File(rutaCarpeta);
-
-            if(!carpeta.exists()) {  //Es la primera vez que se instala la aplicación.
-                sincronizar = crearCarpeta(carpeta);
-            }
-            else{ //ya existia la carpeta
-                sincronizar = true;
-            }
-        }
-        if(sincronizar){
-            sincroListReproduccion();
-
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        ViewPager viewPager = TabbedActivity.getViewPager();
+        if (viewPager == null) {
+            return false;
         }
 
+         if(id == R.id.nuevo){
+            lanzarNuevo();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * Crea la carpeta cancionesingles en la SD cuando se instala por primera vez la aplicación
-     * y guarda los ficheros Demo de Assets en la SD
-     * @param carpeta carpeta cancionesingles a crear en la SD
-     * @return
-     */
-    public boolean crearCarpeta(File carpeta){
-        boolean resultado = false;
 
-
-        if (validarEscribirSD()){
-            carpeta.mkdirs();
-            Log.v(LOG_TAG, "Carpeta cancionesingles creada en la SD");
-
-            if(carpeta.exists()) {
-                String[] ficherosDemo = generarFicheros();
-
-                for (String rutaFicheroDemo : ficherosDemo) {    ///Copiamos todos los ficherosDemo de Assets a la SD
-                    try {
-                        String rutaFicheroSD = rutaCarpeta + rutaFicheroDemo;
-                        copyFileFromAssets(this, rutaFicheroDemo, rutaFicheroSD);
-                    } catch (Exception e) {
-                        e.printStackTrace();
+    public void logOut() {
+        Log.d(LOG_TAG, "LOG OUT");
+        AuthUI.getInstance().signOut(this)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        setUserInfo(-1);
+                        mostrarMensaje(MainActivity.this, "¡Hasta pronto!");
+                        displaySelectedScreen(ACTIVIDAD_TABBED);
                     }
-
-                }
-                resultado = true;
-            }
-            else{
-                Log.v(LOG_TAG,"ERROR: Carpeta cancionesingles no creada");
-                resultado = false;
-            }
-        }
-        return resultado;
+                });
     }
 
+    public void displaySelectedScreen(int itemId) {
+        Fragment fragment = null;
+        switch (itemId) {
+            case ACTIVIDAD_LOGIN:
+                Log.d(LOG_TAG, "R.id.nav_signin");
+                floatingActionButton.setVisibility(View.GONE);
+                fragment = new LoginActivity();
+                break;
+            case ACTIVIDAD_TABBED:
+                Log.d(LOG_TAG, "nav_tabbed_activity");
+                floatingActionButton.setVisibility(View.VISIBLE);
+                fragment = new TabbedActivity();
+                break;
+        }
 
+        if (fragment != null) {
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            ft.replace(R.id.content_frame, fragment).commit();
+        }
 
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+    }
 
+    @SuppressWarnings("StatementWithEmptyBody")
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        Log.d(LOG_TAG, "onNavigationItemSelected");
 
+        int id = item.getItemId();
+        if (id == R.id.nav_signin) {
+            displaySelectedScreen(ACTIVIDAD_LOGIN);
+        } else if (id == R.id.nav_tabbed_activity) {
+            displaySelectedScreen(ACTIVIDAD_TABBED);
+        } else if (id == R.id.nav_signout) {
+            logOut();
+        } else if (id == R.id.action_settings) {
+            lanzarPreferencias();
+            return true;
+        } else if (id == R.id.acercaDe) {
+            lanzarAcercaDe();
+            return true;
+        }
+
+        DrawerLayout drawer = (DrawerLayout) findViewById( R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
+    }
 
     @Override
-    protected void onActivityResult(int requestCode, int resulCode, Intent data){
-        if(requestCode == 4567 || requestCode == 5678) {
-            inicializaVista();
-        }
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d(LOG_TAG, "onActivityResult");
+        int posicion = data != null && data.hasExtra("posicion") ? data.getIntExtra("posicion", -1) : -1;
+        if (resultCode == CREAR_OK || resultCode == CANCION_DESCARGADA) ListaCanciones.adaptador.notifyItemInserted(CancionesVector.getInstance().tamanyo() - 1);
+        else if (resultCode == EDITAR_OK && posicion >= 0) ListaCanciones.adaptador.notifyItemChanged(posicion);
+        else if (resultCode == BORRAR_OK && posicion >= 0) ListaCanciones.adaptador.notifyItemRemoved(posicion);
+        if (resultCode == CANCION_DESCARGADA) TabbedActivity.getViewPager().setCurrentItem(SECCION_DESCARGADAS);
     }
 
     @Override
-    public void onBackPressed(){
-        finish();
+    public void onBackPressed() {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
     }
-
-
-    /***
-     * Inicializa la vista recyclerView.
-     */
-    public void inicializaVista(){
-        recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        adaptador = new AdaptadorCanciones(this, vectorCanciones);
-        recyclerView.setAdapter(adaptador);
-        layoutManager = new LinearLayoutManager(this);
-        recyclerView.setLayoutManager(layoutManager);
-
-        adaptador.setOnItemClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-                Intent i = new Intent(MainActivity.this, VistaCancionActivity.class);
-                i.putExtra("id",(long)recyclerView.getChildAdapterPosition(v));
-                startActivityForResult(i,4567);
-
-            }
-
-        });
-    }
-
-
-
 }
+

@@ -1,0 +1,58 @@
+{
+  "project_info": {
+    "project_number": "840522746105",
+    "firebase_url": "https://canciones-ingles.firebaseio.com",
+    "project_id": "canciones-ingles",
+    "storage_bucket": "canciones-ingles.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:840522746105:android:369cd61df1881b11",
+        "android_client_info": {
+          "package_name": "com.sacedonmg.cancionesingles"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "840522746105-mqqsaqbpqh5heaioa1kdankqpqde0b17.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sacedonmg.cancionesingles",
+            "certificate_hash": "a531ed908b75fa6bc088ec02b1aa1f7a18c3ffcf"
+          }
+        },
+        {
+          "client_id": "840522746105-0764qlos8k9e774ovurbqkoii1tqsndc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAVdYiImbFW6bZFqztQokz6LASQOmxj6eY"
+        },
+        {
+          "current_key": "AIzaSyA85dUyQYdTVbSkRSFTdsAd8j7uWITqEq0"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "840522746105-0764qlos8k9e774ovurbqkoii1tqsndc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

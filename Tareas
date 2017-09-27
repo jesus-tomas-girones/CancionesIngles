@@ -4,35 +4,38 @@ A)  Segundo listados: con canciones compartidas en una base de datos Firebase.
 
 * A.1 – Crear un fichero JSON con la base de datos. Subirla al servidor http://mmoviles.upv.es/canciones_ingles. Subir los ficheros asociados a esta base de datos.
 * A.2 – Crear proyecto Firebase, exportar la base de datos y dar permiso.
-- A.3 -	Crear un IU que permita seleccionar entre “Mis canciones” y “Canciones disponibles”. Otros textos: “Canciones descargadas” y “Canciones disponibles”. Puede ser un Tab como se hizo en Audiolibros.
-  A.4 -	Hacer el listado usando un FirebaseRecyclerAdapter
+* A.3 -	Crear un IU que permita seleccionar entre “Mis canciones” y “Canciones disponibles”. Otros textos: “Canciones descargadas” y “Canciones disponibles”. Puede ser un Tab como se hizo en Audiolibros.
+* A.4 -	Hacer el listado usando un FirebaseRecyclerAdapter
  
 B)  Permitir bajarse una canción: Se descarga los ficheros desde Firebase a memoria local
 
-  B.1 -	Añadir evento onClick al listado y un dialogo que te pregunte si quieres descargar la canción.
-  B.2 -	Descargar los ficheros a memoria local (p.e. usando Volley)
-  B.3 - Actualizar listado de canciones descargadas y pasar a este listado donde se vea la canción descargada.
+* B.1 -	Añadir evento onClick al listado y un dialogo que te pregunte si quieres descargar la canción. -> En lugar de en la lista, en el menu de la pantalla vistaCancion
+* B.2 - Descargar los ficheros a memoria local (p.e. usando Volley)
+* B.3 - Actualizar listado de canciones descargadas y pasar a este listado donde se vea la canción descargada.
 
 C) Permitir subir una canción
-  C.1 -	En una primera fase será sin usuario autentificado. (Asegurarse que la BBDD tiene permiso de escritura a todo el mundo.) Simplemente el usuario escogerá la opción “Subir canción a servidor para compartirla”. Esta opción solo ha de poderse seleccionar en canciones creadas por el usuario.
-  C.2 -	Subir los ficheros (verificar si el nombre de fichero ya existe)
-  C.3 - Si todo OK, añadir nuevo nodo en bases de datos
+* C.1 -	En una primera fase será sin usuario autentificado. (Asegurarse que la BBDD tiene permiso de escritura a todo el mundo.)
+        Simplemente el usuario escogerá la opción “Subir canción a servidor para compartirla”.
+        Esta opción solo ha de poderse seleccionar en canciones creadas por el usuario.
+* C.2 - Subir los ficheros (verificar si el nombre de fichero ya existe)
+* C.3 - Si todo OK, añadir nuevo nodo en bases de datos
 
 D)   Autentificar el usuario con Firebase
-  D.1 - Cuando el usuario va a añadir una canción pedir que se identifique con FireBase
-  D.2 -	Añadir usuario y correo a listado de usuarios como en el curso.
-  D.3 -	Añadir el campo usuario a la base de datos de canciones
-  D.4 -	¿? Añadir NavigationDrawer y ponerle la foto del usuario (como en el curso) 
+* D.1 - Cuando el usuario va a añadir una canción pedir que se identifique con FireBase
+* D.2 -	Añadir usuario y correo a listado de usuarios como en el curso.
+* D.3 -	Añadir el campo usuario a la base de datos de canciones
+* D.4 -	¿? Añadir NavigationDrawer y ponerle la foto del usuario (como en el curso)
 
 E)   Edición de canciones en el servidor
-  E.1 - Cuando en el listado del servidor exista una canción con usuario igual al actual, permitir opciones de borrado, (opcionalmente edición).
-  E.2 -	Permitir borrar una canción. Borrar los ficheros y el nodo de la base de datos. 
+* E.1 - Cuando en el listado del servidor exista una canción con usuario igual al actual, permitir opciones de borrado, (opcionalmente edición). -> edición no hecho
+* E.2 -	Permitir borrar una canción. Borrar los ficheros y el nodo de la base de datos.
   E.3 -	¿? Permitir la edición de una canción. La opción de edición es opcional, el usuario puede borrarla en el servidor, editarla en local y luego volverla a subir.  
   E.4 -	¿? Cuando se sube una canción que ya existe en el servidor, se verifica que es del mismo usuario y se reemplaza. Equivalente a borrarla y volver a subirla. 
 
 Por determinar otras mejoras en la parte del proyecto ya desarrollado
  	Mejoras del IU
+* 	    - Cambio paleta de colores, icono lanzador y estilo de los botonos
  	Corrección de errores de reproducción
  	Mejoras en la edición y etiquetado de canciones
- 	Nuevos modos de reproducción, ejercicios de completar palabras, dictado, …
+*	Nuevos modos de reproducción, ejercicios de completar palabras, dictado, … -> Rellenar palabras
 

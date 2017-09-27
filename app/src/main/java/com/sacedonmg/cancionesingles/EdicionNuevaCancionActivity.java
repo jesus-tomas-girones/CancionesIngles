@@ -1,5 +1,6 @@
 package com.sacedonmg.cancionesingles;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -11,15 +12,17 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import static com.sacedonmg.cancionesingles.UtilidadesCanciones.EXTENSION_XML;
-import static com.sacedonmg.cancionesingles.UtilidadesCanciones.sincroListReproduccion;
+import com.google.firebase.auth.FirebaseUser;
+
+import static com.sacedonmg.cancionesingles.MainActivity.CREAR_OK;
+import static com.sacedonmg.cancionesingles.MainActivity.EDITAR_OK;
 
 /**
  * Created by MGS on 21/07/2016.
  */
 public class EdicionNuevaCancionActivity extends AppCompatActivity {
 
-    private static final String LOG_TAG = "EdiNuevaCancionActivity";
+    private static final String LOG_TAG = "CI::EdiNuevaCancion";
     private long id;
     private Cancion cancion;
     private EditText titulo;
@@ -47,7 +50,6 @@ public class EdicionNuevaCancionActivity extends AppCompatActivity {
             id = extras.getLong("id", -1);
             mostrarDatosCancion((int) id);
         }
-
     }
 
 
@@ -74,8 +76,11 @@ public class EdicionNuevaCancionActivity extends AppCompatActivity {
     }
 
     public void inicializaDatosCancion(){
-
         cancion = new Cancion();
+
+        FirebaseUser currentUser = FirebaseSingleton.getInstance().getCurrentUser();
+        String userUid = currentUser != null ? currentUser.getUid() : "local";
+        cancion.setUser(userUid);
 
         nombreVista = (TextView) findViewById(R.id.nombreVista);
 
@@ -112,7 +117,7 @@ public class EdicionNuevaCancionActivity extends AppCompatActivity {
      * @param id identificador del objeto canción dentro del vector canciones
      */
     public void mostrarDatosCancion(int id){
-        cancion = MainActivity.vectorCanciones.elemento(id);
+        cancion = ListaCanciones.adaptador.getItem(id);
         titulo.setText(cancion.getTitulo());
         autor.setText(cancion.getAutor());
         genero.setSelection(cancion.getGenero().ordinal());
@@ -122,39 +127,44 @@ public class EdicionNuevaCancionActivity extends AppCompatActivity {
     /**
      * Guarda los cambios realizados en la vista de edición/nuevo
      */
-    public void guardarCambios(){
-
-        boolean borrado = false;
+    public void guardarCambios() {
         boolean noInsertar = false;
 
         cancion.setTitulo(titulo.getText().toString());
         cancion.setAutor(autor.getText().toString());
-        cancion.setGenero(Genero.values()[genero.getSelectedItemPosition()]);
-        cancion.setDificultad(Dificultad.values()[dificultad.getSelectedItemPosition()]);
+        cancion.setGenero(genero.getSelectedItemPosition());
+        cancion.setDificultad(dificultad.getSelectedItemPosition());
 
-        if(!editarCancion){
+        if (!editarCancion){
             cancion.setEtiquetado(false);
 
-            if(nombreFichero.getText().toString().isEmpty()) {
-                Log.e(LOG_TAG,"Error Nombre fichero: "+nombreFichero.getText().toString());
+            if (nombreFichero.getText().toString().isEmpty()) {
+                Log.e(LOG_TAG, "Error Nombre fichero: "+nombreFichero.getText().toString());
                 noInsertar = true;
-            }else {
+            } else {
                 cancion.setNombreFichero(nombreFichero.getText().toString());
                 cancion.leerTXT();
-
-            }
-        }
-        if(!noInsertar) {
-
-            borrado = cancion.borrarXML();
-
-            if (!borrado && editarCancion) {
-                Log.e(LOG_TAG, "Error borrando fichero: Imposible guarda cambios en el xml");
-            } else {
-                cancion.escribirXML();
             }
         }
 
+        if (noInsertar) {
+            return;
+        }
+
+        if (!cancion.borrarXML() && editarCancion) {
+            Log.e(LOG_TAG, "Error borrando fichero: Imposible guarda cambios en el xml");
+            return;
+        }
+
+        cancion.escribirXML();
+        Intent data = new Intent();
+
+        if (editarCancion) {
+            data.putExtra("posicion", id);
+            setResult(EDITAR_OK, data);
+        } else {
+            setResult(CREAR_OK, data);
+        }
     }
 
 }

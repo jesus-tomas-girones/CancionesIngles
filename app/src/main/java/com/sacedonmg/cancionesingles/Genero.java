@@ -33,5 +33,20 @@ public enum Genero {
         return resultado;
     }
 
+    public static Genero getByKey(int key){
+        switch (key){
+            case 0: return OTROS;
+            case 1: return ROCK;
+            case 2: return POP;
+            case 3: return RAP;
+            case 4: return BLUES;
+            case 5: return JAZZ;
+            case 6: return ClASICA;
+            case 7: return DISCO;
+            case 8: return SALSA;
+            default: return OTROS;
+        }
+    }
+
 
 }

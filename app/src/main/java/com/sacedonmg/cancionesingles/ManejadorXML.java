@@ -1,5 +1,7 @@
 package com.sacedonmg.cancionesingles;
 
+import android.util.Log;
+
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -11,9 +13,6 @@ public class ManejadorXML extends DefaultHandler{
     private Cancion cancionXML;
     private Frase frase;
     private String tmpValue;
-
-
-
 
     public Cancion getCancionXML(){
         return this.cancionXML;
@@ -35,7 +34,6 @@ public class ManejadorXML extends DefaultHandler{
     @Override
     public void characters(char [] c, int comienzo, int lon){
         tmpValue = new String(c, comienzo, lon);
-
     }
 
     @Override
@@ -47,15 +45,17 @@ public class ManejadorXML extends DefaultHandler{
             cancionXML.setAutor(tmpValue);
         }
         if(nombreCualif.equalsIgnoreCase("genero")){
-            cancionXML.setGenero(Genero.values()[Integer.parseInt(tmpValue)]);
+            cancionXML.setGenero(Integer.parseInt(tmpValue));
         }
         if(nombreCualif.equalsIgnoreCase("dificultad")){
-            cancionXML.setDificultad(Dificultad.values()[Integer.parseInt(tmpValue)]);
+            cancionXML.setDificultad(Integer.parseInt(tmpValue));
         }
         if (nombreCualif.equalsIgnoreCase("etiquetado")){
             cancionXML.setEtiquetado(Boolean.parseBoolean(tmpValue));
         }
-
+        if (nombreCualif.equalsIgnoreCase("user")){
+            cancionXML.setUser(tmpValue);
+        }
         if (nombreCualif.equalsIgnoreCase("tiempoIni")){
             frase.setTiempoIni(Integer.parseInt(tmpValue));
         }
@@ -71,6 +71,5 @@ public class ManejadorXML extends DefaultHandler{
         if (nombreCualif.equalsIgnoreCase("frase")){
             cancionXML.getLetra().add(frase);
         }
-
     }
 }
